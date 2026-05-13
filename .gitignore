@@ -1,0 +1,14 @@
+# Nextflow
+work/
+.nextflow*
+
+# Pipeline
+results/
+
+# nf-test
+.nf-test.log
+.nf-test/
+
+# Other
+.DS_Store
+.vscode/

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/cormackinsella/nf-chain/main/nextflow_schema.json",
+  "title": "cormackinsella/nf-chain pipeline parameters",
+  "description": "Generate chain files for genome liftovers",
+  "type": "object",
+  "properties": {
+    "monochrome_logs": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "help_full": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "show_hidden": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "tracing": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "config_profile_name": {
+      "type": "string",
+      "hidden": true
+    },
+    "config_profile_description": {
+      "type": "string",
+      "hidden": true
+    },
+    "config_profile_contact": {
+      "type": "string",
+      "hidden": true
+    },
+    "config_profile_url": {
+      "type": "string",
+      "hidden": true
+    },
+    "custom_config_version": {
+      "type": "string",
+      "default": "master",
+      "hidden": true
+    },
+    "custom_config_base": {
+      "type": "string",
+      "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+      "hidden": true
+    },
+    "outdir": {
+      "type": "string",
+      "default": "results",
+      "hidden": true
+    },
+    "version": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "validate_params": {
+      "type": "boolean",
+      "default": true,
+      "hidden": true
+    }
+  },
+  "$defs": {
+    "mandatory_parameters": {
+      "title": "Mandatory parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "steps": {
+          "type": "string",
+          "description": "The workflow steps to execute, provided as a csv string",
+          "default": "generate_chains"
+        }
+      },
+      "required": ["steps"]
+    },
+    "core_parameters": {
+      "title": "Core parameters",
+      "type": "object",
+      "description": "Required in most use cases",
+      "default": "",
+      "properties": {
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "mimetype": "csv",
+          "description": "Path to input csv samplesheet"
+        },
+        "aligner": {
+          "type": "string",
+          "description": "Genome alignment algorithm. Use BLAT for closer genomes, LASTZ  for more divergent.",
+          "enum": ["blat", "lastz"]
+        }
+      }
+    },
+    "slurm_hpc_specific_parameters": {
+      "title": "SLURM/HPC specific parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "Provide this when using a SLURM system (project allocation code for hours logging)"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/mandatory_parameters"
+    },
+    {
+      "$ref": "#/$defs/core_parameters"
+    },
+    {
+      "$ref": "#/$defs/slurm_hpc_specific_parameters"
+    }
+  ]
+}

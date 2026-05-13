@@ -1,0 +1,6 @@
+# Basic test params yml
+
+steps: 'generate_chains'
+input: 'tests/data/samplesheet.csv'
+aligner: 'blat'
+tracing: true
