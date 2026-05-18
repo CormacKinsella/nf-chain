@@ -1,6 +1,9 @@
 # Basic test params yml
 
-steps: 'generate_chains'
-input: 'tests/data/samplesheet.csv'
-aligner: 'blat'
-tracing: true
+steps               : 'prepare_inputs,align_assemblies'
+input               : 'tests/data/samplesheet.csv'
+softmask_reference  : false
+softmask_query      : false
+aligner             : 'blat'
+aggregate_chunk_size: 200000
+tracing             : true

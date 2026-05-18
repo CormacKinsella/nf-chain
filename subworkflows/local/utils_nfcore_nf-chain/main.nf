@@ -97,6 +97,8 @@ def validateInputParameters() {
 
     // Define valid workflow steps
     def permitted_steps = [
+        'prepare_inputs',
+        'align_assemblies',
         'generate_chains'
     ]
 
@@ -109,7 +111,9 @@ def validateInputParameters() {
 
     // Define step dependencies
     def step_dependencies = [
-        'generate_chains': [] // no dependencies
+        'prepare_inputs': [],
+        'align_assemblies': ['prepare_inputs'], // align_assemblies depends on prepare_inputs
+        'generate_chains': ['align_assemblies'] // generate_chains depends on align_assemblies
     ]
 
     // Check and report if step dependencies are met
@@ -118,19 +122,19 @@ def validateInputParameters() {
         def required_deps = step_dependencies[step]
         def missing = required_deps.findAll { dep -> !(dep in requested_steps) }
         if ( missing ) {
-            missing_dependencies << "Step '${step}' is missing required dependencies: ${missing.join(', ')}."
+            missing_dependencies << "Step '${step}' is missing required dependencies: ${missing.join(', ')}"
         }
     }
     if ( missing_dependencies ) {
         error "ERROR: An invalid combination of steps was requested.\n - You requested steps: ${requested_steps.join(', ')}\n - ${missing_dependencies.join('\n  - ')}\n"
     }
 
-    // Enforce input for generate_chains step if requested
-    if ( 'generate_chains' in requested_steps && !params.input ) {
-        error "ERROR: Chain generation was requested but no input samplesheet was provided with '--input'"
+    // Enforce input for prepare_inputs step if requested
+    if ( 'prepare_inputs' in requested_steps && !params.input ) {
+        error "ERROR: Input preparation was requested but no input samplesheet was provided with '--input'"
     }
-    // Enforce aligner choice for generate_chains step if requested
-    if ( 'generate_chains' in requested_steps && !params.aligner ) {
-        error "ERROR: Chain generation was requested but no aligner was specified with '--aligner'"
+    // Enforce aligner choice for align_assemblies step if requested
+    if ( 'align_assemblies' in requested_steps && !params.aligner ) {
+        error "ERROR: Alignment was requested but no aligner was specified with '--aligner'"
     }
 }

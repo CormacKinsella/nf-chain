@@ -60,6 +60,14 @@
       "type": "boolean",
       "default": true,
       "hidden": true
+    },
+    "chunk_size": {
+      "type": "integer",
+      "default": 4500
+    },
+    "extra": {
+      "type": "integer",
+      "default": 500
     }
   },
   "$defs": {
@@ -72,7 +80,7 @@
         "steps": {
           "type": "string",
           "description": "The workflow steps to execute, provided as a csv string",
-          "default": "generate_chains"
+          "default": "prepare_inputs,align_assemblies,generate_chains"
         }
       },
       "required": ["steps"]
@@ -93,6 +101,21 @@
           "type": "string",
           "description": "Genome alignment algorithm. Use BLAT for closer genomes, LASTZ  for more divergent.",
           "enum": ["blat", "lastz"]
+        },
+        "aggregate_chunk_size": {
+          "type": "integer",
+          "default": 10000000,
+          "description": "When aligning with BLAT, splits tasks into subsets of this size (bp)"
+        },
+        "softmask_reference": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run softmasking on the reference?"
+        },
+        "softmask_query": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run softmasking on the query?"
         }
       }
     },

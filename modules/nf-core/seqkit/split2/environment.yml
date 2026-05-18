@@ -4,4 +4,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconda::ucsc-blat=472
+  - bioconda::seqkit=2.13.0
