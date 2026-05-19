@@ -132,7 +132,8 @@
         },
         "blat_fastmap": {
           "type": "boolean",
-          "description": "Run BLAT in fast mode (very close genomes only)"
+          "description": "Run BLAT in fast mode (very close genomes only)",
+          "default": true
         },
         "blat_mask_lower_in_target": {
           "type": "boolean",
@@ -143,6 +144,16 @@
           "type": "boolean",
           "default": true,
           "description": "BLAT should consider softmasking in the source assembly"
+        },
+        "blat_min_identity": {
+          "type": "integer",
+          "default": 95,
+          "description": "BLAT minimium alignment percentage"
+        },
+        "blat_min_score": {
+          "type": "integer",
+          "default": 100,
+          "description": "BLAT minimum alignment score"
         }
       }
     },

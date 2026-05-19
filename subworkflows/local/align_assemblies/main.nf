@@ -73,10 +73,12 @@ workflow ALIGN_ASSEMBLIES {
                         .transpose()
                 )
                 .set { blat_input }
-            // Align
+            // Align and run liftup (combined for job scheduler efficiency)
             BLAT (
                 blat_input,
-                ooc11
+                ooc11,
+                PROCESS_SOURCE.out.lift.collect(),
+                PROCESS_TARGET.out.lift.collect()
             )
 
     }
