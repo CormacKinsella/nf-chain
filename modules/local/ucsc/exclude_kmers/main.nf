@@ -9,7 +9,7 @@ process KMERS_TO_EXCLUDE {
         'community.wave.seqera.io/library/ucsc-blat:482--fd8b6a68314e0aca' }"
 
     input:
-    tuple val(meta), path(query)
+    tuple val(meta), path(source)
     val repMatch
 
     output:
@@ -20,7 +20,7 @@ process KMERS_TO_EXCLUDE {
     script:
     def args = task.ext.args ?: ''
     """
-    blat ${query} /dev/null /dev/null -makeOoc=11.ooc -tileSize=11 -repMatch=${repMatch}
+    blat ${source} /dev/null /dev/null -makeOoc=11.ooc -tileSize=11 -repMatch=${repMatch}
     """
 
 }

@@ -1,6 +1,6 @@
 process BLAT {
 
-    tag "$reference.baseName"
+    tag "$query.baseName"
     label 'process_single'
 
     // Note: manually update the package versions, tool does not have --version flag
@@ -9,7 +9,7 @@ process BLAT {
         'community.wave.seqera.io/library/ucsc-blat:482--fd8b6a68314e0aca' }"
 
     input:
-    tuple val(meta), path(query), val(meta2), path(reference)
+    tuple val(meta), path(target_reference), val(meta2), path(query)
     tuple val(meta3), path(ooc11)
 
     output:
@@ -22,10 +22,10 @@ process BLAT {
     def args2 = task.ext.args2 ?: ''
     def args3 = task.ext.args3 ?: ''
     def args4 = task.ext.args4 ?: ''
-    def prefix = reference.baseName
+    def prefix = target_reference.baseName
     """
     blat \\
-        ${reference} \\
+        ${target_reference} \\
         ${query} \\
         ${args} \\
         ${args2} \\

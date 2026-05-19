@@ -1,35 +1,51 @@
-# nf-chain
+[![Pixi Badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/prefix-dev/pixi/main/assets/badge/v0.json)](https://pixi.sh)
+![Nextflow](https://img.shields.io/badge/Nextflow-v26.4.1-brightgreen)
+
+<div align="center"><strong>nf-chain: Generate chain files for genome to genome liftovers</strong></div><br>
+
+## Brief description
+
+`nf-chain` is an accessible Nextflow workflow for generating `chain` files between a source and target assembly, provided either as a local/remote FASTA file, or an NCBI accession.
 
 
-BLAT: close genomes. E.g., alignments must have at least 90% identity
+## Quick start
 
-Generate chain files for genome to genome liftovers
+This quick start assumes users have either `Docker`, `Apptainer`, or `Singularity` already installed.
 
+1. [Install Pixi](https://pixi.sh/latest/installation/): `curl -fsSL https://pixi.sh/install.sh | sh`
+2. Clone the Workflow repository: `git clone https://github.com/CormacKinsella/nf-chain.git`
+3. Run `cd nf-chain && pixi install`
 
-- repeat masking...
+You can now run the test (two yeast genomes):
 
-- splitting, when to do it and at which point?
+`pixi run nextflow main.nf -profile apptainer,test -params-file tests/params.yml`
 
-- Inter-species, generally use lastz
+- Note: to use `singularity` or `docker`, replace `apptainer` with your choice
 
-- Intra-species, generally use blat
-    - time with single core, yeast genome, no masking, no chunking ~45 mins...
+Or get help with parameters:
 
-- minimap2 also an option
-
-
+`pixi run help`
 
 ## A note on terminology
 
 - Liftovers convert genomic coordinates between genome assemblies
 
-- The `source assembly` has the old coordinate system that you no longer want
+- In the liftover sense:
+    - The `source assembly` has the old coordinate system that you no longer want
+    - The `target assembly` has the new coordinate system you are trying to convert to
+    - For inputs or parameters referring to `source` or `target`, users should follow this meaning
 
-- The `target assembly` has the new coordinate system you are trying to convert to
+- The `chain file` links the `source` and `target` coordinates unidirectionally, i.e., only for converting from `source` to `target`
 
-- The `chain file` links the source and target coordinates unidirectionally and is used when converting in one direction, i.e., two are required for converting back and forth
+- Some aligners such as `BLAT` use the term `target` in a different sense, i.e., the `target reference` to be queried during alignment:
+    - `BLAT` indexes the `target reference` (our `source` assembly) as non-overlapping 11-mers and keeps it in memory
+    - The `query` (our `target` assembly) is broken into small chunks and aligned
+    - `nf-chain` handles these tasks under the hood
 
-- Note that internally, the `source` assembly acts as the alignment reference (i.e., the database), and the `target` will be the query
+## Aligner choice
 
+- `BLAT`: very closely related genomes, i.e., 95% or greater identity
 
+- `LASTZ`: inter-species alignments
 
+- `minimap2`: inter-species alignments, repetitive genomes

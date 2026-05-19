@@ -60,9 +60,6 @@
       "type": "boolean",
       "default": true,
       "hidden": true
-    },
-    "blat_fastmap": {
-      "type": "boolean"
     }
   },
   "$defs": {
@@ -97,14 +94,22 @@
           "description": "Genome alignment algorithm. Use BLAT for closer genomes, LASTZ  for more divergent.",
           "enum": ["blat", "lastz"]
         },
-        "softmask_reference": {
+        "softmask_source": {
           "type": "boolean",
-          "description": "Run softmasking on the reference?"
+          "description": "Run softmasking on the source assembly?"
         },
-        "softmask_query": {
+        "softmask_target": {
           "type": "boolean",
-          "description": "Run softmasking on the query?"
-        },
+          "description": "Run softmasking on the target assembly?"
+        }
+      }
+    },
+    "blat_specific": {
+      "title": "BLAT specific",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
         "chunk_size": {
           "type": "integer",
           "default": 4500,
@@ -118,12 +123,26 @@
         "aggregate_chunk_size": {
           "type": "integer",
           "default": 10000000,
-          "description": "BLAT: Splits tasks into subsets of chunks adding up to this size (bp)"
+          "description": "Splits tasks into subsets of chunks adding up to this size (bp)"
         },
         "exclude_frequent_kmers": {
           "type": "boolean",
           "default": true,
-          "description": "BLAT: Calculate and mask frequent 11-mers"
+          "description": "Calculate and skip frequent 11-mers"
+        },
+        "blat_fastmap": {
+          "type": "boolean",
+          "description": "Run BLAT in fast mode (very close genomes only)"
+        },
+        "blat_mask_lower_in_target": {
+          "type": "boolean",
+          "default": true,
+          "description": "BLAT should consider softmasking in the target assembly"
+        },
+        "blat_mask_lower_in_source": {
+          "type": "boolean",
+          "default": true,
+          "description": "BLAT should consider softmasking in the source assembly"
         }
       }
     },
@@ -146,6 +165,9 @@
     },
     {
       "$ref": "#/$defs/core_parameters"
+    },
+    {
+      "$ref": "#/$defs/blat_specific"
     },
     {
       "$ref": "#/$defs/slurm_hpc_specific_parameters"

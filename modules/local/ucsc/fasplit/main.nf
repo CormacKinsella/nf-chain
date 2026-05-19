@@ -20,10 +20,9 @@ process SPLIT_FASTA {
 
     script:
     def args = task.ext.args ?: ''
-    def args2 = task.ext.args2 ?: ''
     """
     # Run faSplit
-    faSplit size -oneFile -lift=${args}.lift ${args2} ${assembly} ${length} ${args}
+    faSplit size -oneFile -lift=${meta.role}.lift ${args} ${assembly} ${length} ${meta.role}
     """
 
 }
