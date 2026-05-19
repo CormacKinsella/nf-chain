@@ -1,9 +1,7 @@
-# Basic test params yml
+# Params to run the provided test
 
-steps               : 'prepare_inputs,align_assemblies'
 input               : 'tests/data/samplesheet.csv'
-softmask_reference  : false
-softmask_query      : false
+steps               : 'prepare_inputs,align_assemblies'
 aligner             : 'blat'
 aggregate_chunk_size: 200000
 tracing             : true

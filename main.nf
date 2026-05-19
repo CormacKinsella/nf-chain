@@ -1,14 +1,11 @@
-
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_nf-chain/main'
 include { PREPARE_FASTAS          } from './subworkflows/local/prepare_fastas/main'
-//include { SOFTMASK_ASSEMBLIES     } from './subworkflows/local/softmask_assemblies/main'
 include { ALIGN_ASSEMBLIES        } from './subworkflows/local/align_assemblies/main'
 include { GENERATE_CHAINS         } from './subworkflows/local/generate_chains/main'
 
 workflow {
 
     main:
-
     PIPELINE_INITIALISATION (
         params.version,         // boolean: Display version and exit
         params.validate_params, // boolean: Boolean whether to validate parameters against the schema at runtime
@@ -27,39 +24,15 @@ workflow {
 
     // Prepare assemblies
     if ( 'prepare_inputs' in workflow_steps) {
-
-        // Take accessions or local paths and output uncompressed FASTA
+        // Take either accessions or local paths (including .gz) and output uncompressed FASTA
          PREPARE_FASTAS (
             samplesheet
         )
         assemblies = PREPARE_FASTAS.out.assemblies
-
-        // TODO: Softmask the assemblies if requested (recommended unless user is inputting softmasked FASTA)
-
-        // channel magic here to get the assemblies to softmask together in one channel. Rather than running the process twice like below...
-        // if ( params.softmask_reference ) {
-        //     SOFTMASK_ASSEMBLIES (
-        //         reference
-        //     )
-        //     reference = SOFTMASK_ASSEMBLIES.out.assemblies
-        // }
-        // if ( params.softmask_query ) {
-        //     SOFTMASK_ASSEMBLIES (
-        //         query
-        //     )
-        //     query = SOFTMASK_ASSEMBLIES.out.assemblies
-        // }
-        // mix here
-
-
-        //     assemblies = SOFTMASK_ASSEMBLIES.out.assemblies
-        // }
-
     }
 
     // Align assemblies
     if ( 'align_assemblies' in workflow_steps) {
-
         ALIGN_ASSEMBLIES (
             assemblies,
             params.aligner,
@@ -68,18 +41,15 @@ workflow {
             params.aggregate_chunk_size,
             params.exclude_frequent_kmers
         )
-
     }
 
     // Generate chains
-
     if ( 'generate_chains' in workflow_steps) {
         GENERATE_CHAINS (
             assemblies,
             params.aligner
         )
     }
-
 
 
     // Report package versions

@@ -14,7 +14,7 @@ process SPLIT_FASTA {
 
     output:
     tuple val(meta), path("*.lift"), emit: lift
-    tuple val(meta), path("*.fa")  , emit: fasplit_assembly
+    tuple val(meta), path("*.fa")  , emit: assembly
     // Note: manually update the package versions, tool does not have --version flag
     tuple val(task.process), val('faSplit'), val('482'), topic: versions
 

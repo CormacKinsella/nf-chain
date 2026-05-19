@@ -61,13 +61,8 @@
       "default": true,
       "hidden": true
     },
-    "chunk_size": {
-      "type": "integer",
-      "default": 4500
-    },
-    "extra": {
-      "type": "integer",
-      "default": 500
+    "blat_fastmap": {
+      "type": "boolean"
     }
   },
   "$defs": {
@@ -102,20 +97,33 @@
           "description": "Genome alignment algorithm. Use BLAT for closer genomes, LASTZ  for more divergent.",
           "enum": ["blat", "lastz"]
         },
-        "aggregate_chunk_size": {
-          "type": "integer",
-          "default": 10000000,
-          "description": "When aligning with BLAT, splits tasks into subsets of this size (bp)"
-        },
         "softmask_reference": {
           "type": "boolean",
-          "default": true,
           "description": "Run softmasking on the reference?"
         },
         "softmask_query": {
           "type": "boolean",
-          "default": true,
           "description": "Run softmasking on the query?"
+        },
+        "chunk_size": {
+          "type": "integer",
+          "default": 4500,
+          "description": "When chunking genomes, use this size for individual FASTA records"
+        },
+        "extra": {
+          "type": "integer",
+          "default": 500,
+          "description": "When chunking genomes, add overlap of this size between FASTA records"
+        },
+        "aggregate_chunk_size": {
+          "type": "integer",
+          "default": 10000000,
+          "description": "BLAT: Splits tasks into subsets of chunks adding up to this size (bp)"
+        },
+        "exclude_frequent_kmers": {
+          "type": "boolean",
+          "default": true,
+          "description": "BLAT: Calculate and mask frequent 11-mers"
         }
       }
     },

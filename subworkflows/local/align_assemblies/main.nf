@@ -5,9 +5,6 @@ include { SPLIT_FASTA as PROCESS_QUERY   } from '../../../modules/local/ucsc/fas
 include { KMERS_TO_EXCLUDE               } from '../../../modules/local/ucsc/exclude_kmers/main'
 include { BLAT                           } from '../../../modules/local/ucsc/blat/main'
 
-// TODO: minimap2
-// TODO: lastz
-
 workflow ALIGN_ASSEMBLIES {
 
     take:
@@ -19,42 +16,42 @@ workflow ALIGN_ASSEMBLIES {
     exclude_frequent_kmers
 
     main:
-    // BLAT
+    // Assembly processing when chunking is required (e.g., BLAT)
     if ( aligner in ['blat'] ) {
-        // Branch source and reference FASTA files into separate channels
+        // Branch source and target FASTA files into separate channels
         fasta_assemblies
             .branch { meta, assembly ->
-                query: meta.role == 'source'
+                reference: meta.role == 'source'
                     return tuple( meta, assembly )
-                reference: meta.role == 'target'
+                query: meta.role == 'target'
                     return tuple( meta, assembly )
             }.set { whole_genome }
 
-        // Chunk reference into 5kb segments and get lift file
+        // Chunks reference into 5kb segments, and gets lift file
         SPLIT_REFERENCE (
             whole_genome.reference,
             chunk_size
         )
 
-        // Aggregate 5kb reference chunks into subsets of total size "aggregate_chunk_size"
-        def subsets = Math.floor(aggregate_chunk_size / (chunk_size + extra)) as Integer
+        // Aggregates 5kb reference chunks into subsets of total size "aggregate_chunk_size"
+        def seqs_per_subset = Math.floor(aggregate_chunk_size / (chunk_size + extra)) as Integer
         SEQKIT_SPLIT2 (
-            SPLIT_REFERENCE.out.fasplit_assembly,
-            subsets
+            SPLIT_REFERENCE.out.assembly,
+            seqs_per_subset
         )
 
-        // Get size of longest query sequence & real base count of whole genome
+        // Gets size of longest query sequence & real base count of whole genome
         COMPUTE_SIZES (
             whole_genome.query
         )
 
-        // TODO:
+        // Processes query without splitting it, and gets lift file
         PROCESS_QUERY (
             whole_genome.query,
-            COMPUTE_SIZES.out.max_size.map { _meta, size -> size } // Set to largest contig, therefore will not split the genome
+            COMPUTE_SIZES.out.max_size.map { _meta, size -> size } // Val set to longest contig = genome not split
         )
 
-        // Compute over-used 11-mers in the query (https://genomewiki.ucsc.edu/index.php/DoSameSpeciesLiftOver.pl)
+        // Computes over-used 11-mers in the query (https://genomewiki.ucsc.edu/index.php/DoSameSpeciesLiftOver.pl)
         ooc11 = channel.of( [ [], [] ] ).collect()
         if ( exclude_frequent_kmers ) {
             repMatch = COMPUTE_SIZES.out.real_size.map { _meta, size ->
@@ -69,9 +66,9 @@ workflow ALIGN_ASSEMBLIES {
             ooc11 = KMERS_TO_EXCLUDE.out.ooc11.collect()
         }
 
-        // BLAT
-        blat_input = PROCESS_QUERY.out.fasplit_assembly
-            .combine(SEQKIT_SPLIT2.out.aggregated_chunks.transpose() )
+        // Alignment with BLAT
+        blat_input = PROCESS_QUERY.out.assembly
+            .combine( SEQKIT_SPLIT2.out.aggregated_chunks.transpose() )
         BLAT (
             blat_input,
             ooc11
@@ -82,7 +79,7 @@ workflow ALIGN_ASSEMBLIES {
 //        SEQKIT_SPLIT2.out.aggregated_chunks.view()
         // Align query to reference chunks with BLAT
         // BLAT (
-        //     PROCESS_QUERY.out.fasplit_assembly
+        //     PROCESS_QUERY.out.assembly
         // )
 
 

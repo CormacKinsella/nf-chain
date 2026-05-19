@@ -112,8 +112,8 @@ def validateInputParameters() {
     // Define step dependencies
     def step_dependencies = [
         'prepare_inputs': [],
-        'align_assemblies': ['prepare_inputs'], // align_assemblies depends on prepare_inputs
-        'generate_chains': ['align_assemblies'] // generate_chains depends on align_assemblies
+        'align_assemblies': ['prepare_inputs'],
+        'generate_chains': ['prepare_inputs', 'align_assemblies']
     ]
 
     // Check and report if step dependencies are met

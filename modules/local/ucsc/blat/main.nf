@@ -13,20 +13,26 @@ process BLAT {
     tuple val(meta3), path(ooc11)
 
     output:
-    //    tuple val(meta), path("*.fa")  , emit: fasplit_assembly
+    tuple val(meta), path("*.psl"), emit: blat_psl
     // Note: manually update the package versions, tool does not have --version flag
     tuple val(task.process), val('blat'), val('482'), topic: versions
 
     script:
     def args  = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
+    def args3 = task.ext.args3 ?: ''
+    def args4 = task.ext.args4 ?: ''
     def prefix = reference.baseName
     """
     blat \\
         ${reference} \\
         ${query} \\
         ${args} \\
+        ${args2} \\
+        ${args3} \\
+        ${args4} \\
+        -noHead \\
         ${prefix}.psl
-
     """
 
 }

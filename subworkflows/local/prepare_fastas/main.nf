@@ -7,7 +7,6 @@ workflow PREPARE_FASTAS {
     samplesheet
 
     main:
-
     // Separate local FASTA from accessions to download
     samplesheet
         .branch { meta ->
@@ -22,7 +21,7 @@ workflow PREPARE_FASTAS {
         input.accession
     )
 
-    // Prepare assemblies provided as local FASTA files
+    // Prepare assemblies provided as local FASTA files (runs locally, handles both uncompressed and gzipped)
     UNZIP_ASSEMBLY (
         input.fasta
     )
