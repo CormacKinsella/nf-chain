@@ -1,28 +1,40 @@
 include { FASTA_TO_TWOBIT } from '../../../modules/local/ucsc/twobit/main'
+include { AXTCHAIN        } from '../../../modules/local/ucsc/axtchain/main'
 
 workflow GENERATE_CHAINS {
 
     take:
-    raw_assemblies
+    fasta
     aligner
+    blat_psl
 
     main:
-    // If the aligner requires it, generate 2bit files
+    // Generate 2bit files if required
     if ( aligner in ['blat'] ) {
         FASTA_TO_TWOBIT (
-            raw_assemblies
+            fasta
         )
-        twobit      = FASTA_TO_TWOBIT.out.twobit
+        twobit_out  = FASTA_TO_TWOBIT.out.twobit
         chrom_sizes = FASTA_TO_TWOBIT.out.chrom_sizes
         // Branch source and reference two bit files into separate channels
-        twobit
+        twobit_out
             .branch { meta, assembly ->
-                query: meta.role == 'source'
+                source: meta.role == 'source'
                     return tuple( meta, assembly )
-                reference: meta.role == 'target'
+                target: meta.role == 'target'
                     return tuple( meta, assembly )  
-            }.set { two_bit_input }
+            }.set { twobit_in }
     }
+
+    // Chaining workflow
+
+        if ( aligner in ['blat'] ) {
+            AXTCHAIN (
+                blat_psl,
+                twobit_in.source.collect(),
+                twobit_in.target.collect()
+            )
+        }
 
     //emit:
 

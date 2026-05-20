@@ -41,16 +41,17 @@ workflow {
             params.aggregate_chunk_size,
             params.exclude_frequent_kmers
         )
+        blat_psl = ALIGN_ASSEMBLIES.out.blat_psl
     }
 
     // Generate chains
     if ( 'generate_chains' in workflow_steps) {
         GENERATE_CHAINS (
             assemblies,
-            params.aligner
+            params.aligner,
+            blat_psl
         )
     }
-
 
     // Report package versions
     channel.topic('versions')

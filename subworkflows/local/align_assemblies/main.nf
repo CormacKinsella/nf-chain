@@ -16,6 +16,9 @@ workflow ALIGN_ASSEMBLIES {
     exclude_frequent_kmers
 
     main:
+    // Initialise empty channels
+    blat_psl = channel.empty()
+
     // Assembly processing when chunking is required (e.g., BLAT)
     if ( aligner in ['blat'] ) {
         // Branch source and target FASTA files into separate channels
@@ -73,6 +76,7 @@ workflow ALIGN_ASSEMBLIES {
                         .transpose()
                 )
                 .set { blat_input }
+
             // Align and run liftup (combined for job scheduler efficiency)
             BLAT (
                 blat_input,
@@ -80,9 +84,11 @@ workflow ALIGN_ASSEMBLIES {
                 PROCESS_SOURCE.out.lift.collect(),
                 PROCESS_TARGET.out.lift.collect()
             )
+            blat_psl = BLAT.out.blat_psl
 
     }
 
-    //emit:
+    emit:
+    blat_psl = blat_psl
 
 }

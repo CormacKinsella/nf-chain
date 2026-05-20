@@ -1,6 +1,6 @@
 process BLAT {
 
-    tag "$query.baseName"
+    tag "${query.baseName}"
     label 'process_single'
 
     // Note: manually update the package versions, tool does not have --version flag
