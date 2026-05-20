@@ -59,7 +59,8 @@ workflow PIPELINE_INITIALISATION {
     ch_samplesheet = channel.empty()
 
     if ( params.input ) {
-        def uniqueRoles = new HashSet<String>() // Initialise empty set for detecting duplicate roles
+        def targetCount = 0 // Counter for target assembly
+        def sourceIds = new HashSet<String>() // Track unique source IDs to prevent duplicate source names
         ch_samplesheet = channel.fromPath(params.input, checkIfExists: true)
             .splitCsv(header: true, skip: 0)
             .map { row ->
@@ -74,10 +75,17 @@ workflow PIPELINE_INITIALISATION {
                 if (!['target', 'source'].contains(meta.role)) {
                     error ("ERROR: Samplesheet has an invalid file role: '${meta.role}'. Please only supply 'target, 'source' (not case sensitive).")
                 }
-                // Check for duplicate roles
-                def key = "${meta.role}"
-                if (!uniqueRoles.add(key)) {
-                    error ("Error: there cannot be be more than one target or source assembly. Found a duplicate entry for file role: '${meta.role}' in the samplesheet.")
+                // Enforce max one target assembly
+                if (meta.role == 'target') {
+                    targetCount++
+                    if (targetCount > 1) {
+                        error ("ERROR: There cannot be more than one target assembly. Found ${targetCount} entries with file role 'target' in the samplesheet.")
+                    }
+                } else if (meta.role == 'source') {
+                    // Enforce unique source identifiers
+                    if (!sourceIds.add(meta.id)) {
+                        error ("ERROR: Duplicate source assembly identifier found: '${meta.id}'. Please ensure all source assemblies have unique identifiers.")
+                    }
                 }
                 // Check that the identifier types are valid
                 if (!['accession', 'fasta'].contains(meta.type)) {
