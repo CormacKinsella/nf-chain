@@ -77,6 +77,18 @@
       },
       "required": ["steps"]
     },
+    "slurm_hpc_parameters": {
+      "title": "SLURM/HPC parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "Provide this when using a SLURM system (project allocation code for hours logging)"
+        }
+      }
+    },
     "core_parameters": {
       "title": "Core parameters",
       "type": "object",
@@ -104,8 +116,8 @@
         }
       }
     },
-    "blat_specific": {
-      "title": "BLAT specific",
+    "blat_parameters": {
+      "title": "BLAT parameters",
       "type": "object",
       "description": "",
       "default": "",
@@ -157,15 +169,22 @@
         }
       }
     },
-    "slurm_hpc_specific_parameters": {
-      "title": "SLURM/HPC specific parameters",
+    "chaining_parameters": {
+      "title": "Chaining parameters",
       "type": "object",
       "description": "",
       "default": "",
       "properties": {
-        "project": {
+        "axtchain_linear_gap": {
           "type": "string",
-          "description": "Provide this when using a SLURM system (project allocation code for hours logging)"
+          "default": "medium",
+          "enum": ["medium", "loose"],
+          "description": "Specify type of linearGap to use (loose = chicken/human linear gap costs, medium is mouse/human)"
+        },
+        "axtchain_min_score": {
+          "type": "integer",
+          "default": 1000,
+          "description": "Minimum score for chain"
         }
       }
     }
@@ -175,13 +194,16 @@
       "$ref": "#/$defs/mandatory_parameters"
     },
     {
+      "$ref": "#/$defs/slurm_hpc_parameters"
+    },
+    {
       "$ref": "#/$defs/core_parameters"
     },
     {
-      "$ref": "#/$defs/blat_specific"
+      "$ref": "#/$defs/blat_parameters"
     },
     {
-      "$ref": "#/$defs/slurm_hpc_specific_parameters"
+      "$ref": "#/$defs/chaining_parameters"
     }
   ]
 }
