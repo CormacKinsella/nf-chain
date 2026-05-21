@@ -1,6 +1,6 @@
 process BLAT {
 
-    tag "${query.baseName}"
+    tag "${meta.lift}.${query.baseName.tokenize('_').last()}"
     label 'process_single'
 
     // Note: manually update the package versions, tool does not have --version flag
@@ -9,10 +9,8 @@ process BLAT {
         'community.wave.seqera.io/library/ucsc-blat_ucsc-liftup:482--595a990204ffd428' }"
 
     input:
-    tuple val(meta) , path(target_reference), val(meta2), path(query)
-    tuple val(meta3), path(ooc11)
-    tuple val(meta4), path(source_lift)
-    tuple val(meta5), path(target_lift)
+    tuple val(meta) , path(target_reference), path(source_lift), path(ooc11), val(meta2), path(query)
+    tuple val(meta3), path(target_lift)
 
     output:
     tuple val(meta), path("*lifted.psl"), emit: blat_psl
@@ -27,8 +25,7 @@ process BLAT {
     def args4  = task.ext.args4 ?: ''
     def args5  = task.ext.args5 ?: ''
     def args6  = task.ext.args6 ?: ''
-    def base   = query.baseName
-    def number = base.tokenize('_').last()
+    def number = query.baseName.tokenize('_').last()
     """
     blat \\
         ${target_reference} \\
@@ -54,7 +51,7 @@ process BLAT {
         -type=.psl \\
         -nohead \\
         -pslQ \\
-        ${meta.id}_to_${meta2.id}.${number}.lifted.psl \\
+        ${meta.lift}.${number}.lifted.psl \\
         ${target_lift} \\
         warn \\
         stdin

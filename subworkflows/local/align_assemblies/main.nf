@@ -2,7 +2,7 @@ include { COMPUTE_SIZES                 } from '../../../modules/local/ucsc/fasi
 include { SPLIT_FASTA as PROCESS_SOURCE } from '../../../modules/local/ucsc/fasplit/main'
 include { KMERS_TO_EXCLUDE              } from '../../../modules/local/ucsc/exclude_kmers/main'
 include { SPLIT_FASTA as PROCESS_TARGET } from '../../../modules/local/ucsc/fasplit/main'
-include { SEQKIT_SPLIT2                 } from '../../../modules/nf-core/seqkit/split2/main'
+include { SEQKIT_SPLIT2 as SPLIT_TARGET } from '../../../modules/nf-core/seqkit/split2/main'
 include { BLAT                          } from '../../../modules/local/ucsc/blat/main'
 
 workflow ALIGN_ASSEMBLIES {
@@ -23,47 +23,49 @@ workflow ALIGN_ASSEMBLIES {
     if ( aligner in ['blat'] ) {
         // Branch source and target FASTA files into separate channels
         fasta
-            .branch { meta, assembly ->
+            .branch { meta, sequence ->
                 source: meta.role == 'source'
-                    return tuple( meta, assembly )
+                    [ meta, sequence ]
                 target: meta.role == 'target'
-                    return tuple( meta, assembly )
+                    [ meta, sequence ]
             }.set { assembly }
 
-        // Prepare source assembly
+        // Prepare source assemblies
             // Gets the size of the longest source scaffold and the real (non-N) base count of the whole assembly
             COMPUTE_SIZES (
                 assembly.source
             )
-            // Processes the source assembly without splitting
+            // Processes each source assembly without splitting chromosomes and gets lift file
             PROCESS_SOURCE (
-                assembly.source,
-                COMPUTE_SIZES.out.max_size.map { _meta, size -> size } // Val set to longest contig = genome not split
+                assembly.source
+                    .join( COMPUTE_SIZES.out.max_size ) // Split size set to max contig length = just generates lift without split
             )
-            // Computes over-used 11-mers in the source (https://genomewiki.ucsc.edu/index.php/DoSameSpeciesLiftOver.pl)
+            // Computes over-used 11-mers in each source (https://genomewiki.ucsc.edu/index.php/DoSameSpeciesLiftOver.pl)
             ooc11 = channel.of( [ [], [] ] ).collect()
             if ( exclude_frequent_kmers ) {
-                repMatch = COMPUTE_SIZES.out.real_size.map { _meta, size ->
-                    def raw     = Math.floor(1024 * (size as Long / 2861349177)) as Integer
-                    def rounded = Math.floor(raw / 50) * 50 as Integer
-                    rounded == 0 ? raw : rounded
-                }
                 KMERS_TO_EXCLUDE (
-                    assembly.source,
-                    repMatch
+                    assembly.source
+                        .join( COMPUTE_SIZES.out.real_size )
+                        .map { meta, sequence, size ->
+                            def raw     = Math.floor(1024 * (size as Long / 2861349177)) as Integer
+                            def rounded = Math.floor(raw / 50) * 50 as Integer
+                            rounded == 0 ? [ meta, sequence, raw ] : [ meta, sequence, rounded ]
+                        }
                 )
-                ooc11 = KMERS_TO_EXCLUDE.out.ooc11.collect()
+                ooc11 = KMERS_TO_EXCLUDE.out.ooc11
             }
 
-        // Prepare target assembly
-            // Chunks target into 5kb segments, and gets lift file
+        // Prepare the target assembly
+            // Chunks target into 5kb segments and gets lift file
             PROCESS_TARGET (
-                assembly.target,
-                chunk_size
+                assembly.target
+                    .map { meta, sequence ->
+                        [ meta, sequence, chunk_size ]
+                    }
             )
             // Aggregates 5kb target chunks into subsets of total size "aggregate_chunk_size"
             def seqs_per_subset = Math.floor(aggregate_chunk_size / (chunk_size + extra)) as Integer
-            SEQKIT_SPLIT2 (
+            SPLIT_TARGET (
                 PROCESS_TARGET.out.assembly,
                 seqs_per_subset
             )
@@ -71,21 +73,25 @@ workflow ALIGN_ASSEMBLIES {
         // BLAT
             // Prepare BLAT input channel
             PROCESS_SOURCE.out.assembly
+                .join( PROCESS_SOURCE.out.lift )
+                .join( ooc11 )
                 .combine(
-                    SEQKIT_SPLIT2.out.aggregated_chunks
+                    SPLIT_TARGET.out.aggregated_chunks
                         .transpose()
                 )
+                .map { meta, source_fa, source_lift, ooc11, meta2, target_fa ->   // Add "source to target" metas
+                    def source_meta = meta + [ lift: "${meta.id}_to_${meta2.id}" ]
+                    def target_meta = meta2 + [ lift: "${meta.id}_to_${meta2.id}" ]
+                    [ source_meta, source_fa, source_lift, ooc11, target_meta, target_fa ]
+                }
                 .set { blat_input }
-
-            // Align and run liftup (combined for job scheduler efficiency)
+            // Align and run liftup (sequential for job scheduler efficiency)
+            target_lift = PROCESS_TARGET.out.lift.collect() // Assign to value channel (collect on target is safe, only one assembly)
             BLAT (
                 blat_input,
-                ooc11,
-                PROCESS_SOURCE.out.lift.collect(),
-                PROCESS_TARGET.out.lift.collect()
+                target_lift
             )
             blat_psl = BLAT.out.blat_psl
-
     }
 
     emit:

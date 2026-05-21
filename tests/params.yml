@@ -3,5 +3,5 @@
 input               : 'tests/data/samplesheet.csv'
 steps               : 'prepare_inputs,align_assemblies,generate_chains'
 aligner             : 'blat'
-aggregate_chunk_size: 200000
+aggregate_chunk_size: 5000000
 tracing             : true

@@ -9,8 +9,7 @@ process KMERS_TO_EXCLUDE {
         'community.wave.seqera.io/library/ucsc-blat:482--fd8b6a68314e0aca' }"
 
     input:
-    tuple val(meta), path(source)
-    val repMatch
+    tuple val(meta), path(source), val(repMatch)
 
     output:
     tuple val(meta), path("11.ooc"), emit: ooc11

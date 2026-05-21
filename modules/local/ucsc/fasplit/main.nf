@@ -9,8 +9,7 @@ process SPLIT_FASTA {
         'community.wave.seqera.io/library/ucsc-fasplit:482--387359b4c8a6b83e' }"
 
     input:
-    tuple val(meta), path(assembly)
-    val length
+    tuple val(meta), path(assembly), val(length)
 
     output:
     tuple val(meta), path("*.lift"), emit: lift
