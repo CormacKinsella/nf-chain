@@ -159,12 +159,12 @@
         },
         "blat_min_identity": {
           "type": "integer",
-          "default": 95,
+          "default": 90,
           "description": "BLAT minimium alignment percentage"
         },
         "blat_min_score": {
           "type": "integer",
-          "default": 100,
+          "default": 30,
           "description": "BLAT minimum alignment score"
         }
       }
@@ -185,6 +185,10 @@
           "type": "integer",
           "default": 1000,
           "description": "Minimum score for chain"
+        },
+        "chains_sequential": {
+          "type": "boolean",
+          "description": "If true, mimics UCSC sequential processing of each chrom.chain (not recommended)"
         }
       }
     }

@@ -52,6 +52,7 @@ workflow {
             blat_psl
         )
     }
+    chain = GENERATE_CHAINS.out.chain
 
     // Report package versions
     channel.topic('versions')
@@ -67,6 +68,7 @@ workflow {
     // Define publish targets
     publish:
     versions                   = versions
+    chains                     = chain.map { _meta, path -> [ path ] }
 
 }
 
@@ -76,5 +78,8 @@ output {
     versions {
         path '01_pipeline_info/package_versions'
     }
-
+    // Chain files
+    chains {
+        path '02_chains'
+    }
 }

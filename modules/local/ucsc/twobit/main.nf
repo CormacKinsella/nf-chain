@@ -12,8 +12,7 @@ process FASTA_TO_TWOBIT {
     tuple val(meta), path(assembly)
 
     output:
-    tuple val(meta), path("${meta.id}_genomic.2bit"), emit: twobit
-    tuple val(meta), path("${meta.id}_genomic.2bit.chrom.sizes"), emit: chrom_sizes
+    tuple val(meta), path("*.2bit"), path("*.chrom.sizes"), emit: twobit
     // Note: manually update the package versions, tool does not have --version flag
     tuple val(task.process), val('faToTwoBit'), val('482'), topic: versions
     tuple val(task.process), val('twoBitInfo'), val('482'), topic: versions
