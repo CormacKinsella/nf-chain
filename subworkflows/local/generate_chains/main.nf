@@ -2,6 +2,7 @@ include { FASTA_TO_TWOBIT } from '../../../modules/local/ucsc/twobit/main'
 include { AXTCHAIN        } from '../../../modules/local/ucsc/axtchain/main'
 include { MERGE_CHAINS    } from '../../../modules/local/ucsc/chainmerge/main'
 include { NET_CHAIN       } from '../../../modules/local/ucsc/netchain/main'
+include { CHAIN_STATS     } from '../../../modules/local/chain_stats/main'
 
 workflow GENERATE_CHAINS {
 
@@ -35,10 +36,6 @@ workflow GENERATE_CHAINS {
             .map { _key, _old_meta, twobit, chrom_sizes, meta, _psl ->
                 [ meta, twobit, chrom_sizes ] // Replace the meta object and return
             }.set { twobit_source_modified }
-    }
-
-    // Prepare axtchain input for BLAT
-    if ( aligner in ['blat'] ) {
         // Combine BLAT psl with source twobit file
         blat_psl
             .combine(
@@ -46,10 +43,6 @@ workflow GENERATE_CHAINS {
                 by: 0
             )
             .set { axtchain_in }
-    }
-
-    // Chaining workflow
-    if ( aligner in ['blat'] ) {
         // Convert from psl to chain & bridge chains
         AXTCHAIN (
             axtchain_in,
@@ -76,11 +69,18 @@ workflow GENERATE_CHAINS {
                 .map { meta, _twobit, chrom_sizes -> [ meta, chrom_sizes ] }
                 .collect()
         )
-        NET_CHAIN.out.final_chain
-            .set { chain }
+        // Generate chain stats
+        CHAIN_STATS (
+            NET_CHAIN.out.final_chain
+                .join( twobit_source_modified.map { meta, _twobit, chrom_sizes -> [ meta, chrom_sizes ] } ),
+            twobit.target
+                .map { meta, _twobit, chrom_sizes -> [ meta, chrom_sizes ] }
+                .collect()
+        )
     }
 
     emit:
-    chain = chain
+    chain = NET_CHAIN.out.final_chain
+    stats = CHAIN_STATS.out.chain_stats
 
 }

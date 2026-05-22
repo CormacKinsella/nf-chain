@@ -60,6 +60,12 @@
       "type": "boolean",
       "default": true,
       "hidden": true
+    },
+    "chain_file": {
+      "type": "string"
+    },
+    "liftover_input": {
+      "type": "string"
     }
   },
   "$defs": {
@@ -134,7 +140,7 @@
         },
         "aggregate_chunk_size": {
           "type": "integer",
-          "default": 10000000,
+          "default": 50000000,
           "description": "Splits tasks into subsets of chunks adding up to this size (bp)"
         },
         "exclude_frequent_kmers": {
@@ -144,8 +150,7 @@
         },
         "blat_fastmap": {
           "type": "boolean",
-          "description": "Run BLAT in fast mode (very close genomes only)",
-          "default": true
+          "description": "Run BLAT in fast mode (very close genomes only)"
         },
         "blat_mask_lower_in_target": {
           "type": "boolean",

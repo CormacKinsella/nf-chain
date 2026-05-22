@@ -45,14 +45,31 @@ workflow {
     }
 
     // Generate chains
+    chain = channel.of( [ [], ['Not requested'] ] )
+    stats = channel.of( [ [], ['Not requested'] ] )
+
     if ( 'generate_chains' in workflow_steps) {
         GENERATE_CHAINS (
             assemblies,
             params.aligner,
             blat_psl
         )
+        chain = GENERATE_CHAINS.out.chain
+        stats = GENERATE_CHAINS.out.stats
     }
-    chain = GENERATE_CHAINS.out.chain
+
+    // Perform liftovers
+    // if ( 'liftover' in workflow_steps) {
+    //     // 'chain' will be the publishing placeholder unless 'generate_chains' ran: in this case overwrite with user input
+    //     if ( !('generate_chains' in workflow_steps) ) {
+    //         // PREPARE INPUT CHAIN FROM INPUT
+    //         chain = channel.fromPath( params.chain_file, checkIfExists: true )
+    //     }
+    //     // TODO Develop liftover
+    //     LIFTOVER (
+    //         chain
+    //     )
+    // }
 
     // Report package versions
     channel.topic('versions')
@@ -69,6 +86,7 @@ workflow {
     publish:
     versions                   = versions
     chains                     = chain.map { _meta, path -> [ path ] }
+    stats                      = stats.map { _meta, path -> [ path ] }
 
 }
 
@@ -81,5 +99,9 @@ output {
     // Chain files
     chains {
         path '02_chains'
+    }
+    // Chain stats
+    stats {
+        path '03_chain_stats'
     }
 }

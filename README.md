@@ -5,23 +5,26 @@
   <img src="assets/nf-chain.svg" alt="nf-chain">
 </p>
 
-<div align="center"><strong>nf-chain: Generate chain files for genome to genome liftovers</strong></div><br>
+<div align="center"><strong>nf-chain: Generate chain files and run genome to genome liftovers</strong></div><br>
 
 ## Brief description
 
-`nf-chain` is an accessible Nextflow workflow for generating `chain` files between source assemblies and one target assembly
+`nf-chain` is an accessible Nextflow workflow for genome to genome liftovers
 
-- Any number of source assemblies can be provided, either as local/remote FASTA files, or NCBI accessions
+    - Takes assemblies as NCBI accessions or FASTA files
+    - Generates `chain` files between a target assembly and any number of `source` assemblies
+    - Optionally also runs liftovers on compatible inputs (e.g. `bed` or `gff`)
+    - For liftover, users can choose to skip `chain` generation and provide their own
 
 ## Quick start
 
 This quick start assumes users have either `Docker`, `Apptainer`, or `Singularity` already installed.
 
 1. [Install Pixi](https://pixi.sh/latest/installation/): `curl -fsSL https://pixi.sh/install.sh | sh`
-2. Clone the Workflow repository: `git clone https://github.com/CormacKinsella/nf-chain.git`
+2. Clone the workflow repository: `git clone https://github.com/CormacKinsella/nf-chain.git`
 3. Run `cd nf-chain && pixi install`
 
-You can now run the test (two source yeast assemblies against the R64 reference genome target):
+You can now run the test (generates chain files for two source yeast assemblies versus the R64 reference genome target, and carries out an example liftover):
 
 `pixi run nextflow main.nf -profile apptainer,test -params-file tests/params.yml`
 
@@ -31,7 +34,19 @@ Get help with parameters:
 
 `pixi run help`
 
-## A note on terminology
+## To run only chain generation
+
+`pixi run nextflow main.nf -profile apptainer --steps 'prepare_inputs,align_assemblies,generate_chains' --input genomes_samplesheet.csv`
+
+## To run only liftover
+
+`pixi run nextflow main.nf -profile apptainer --steps 'liftover' --chain_file Y12_to_R64.chain.gz --liftover_input liftover_samplesheet.csv`
+
+## To run chain generation and liftover
+
+`pixi run nextflow main.nf -profile apptainer --steps 'prepare_inputs,align_assemblies,generate_chains,liftover' --input genomes_samplesheet.csv --liftover_input liftover_samplesheet.csv`
+
+### A note on terminology
 
 - Liftovers convert genomic coordinates between genome assemblies
 
@@ -45,9 +60,8 @@ Get help with parameters:
 - Some aligners such as `BLAT` use the term `target` in a different sense, i.e., the `target reference` to be queried during alignment:
     - `BLAT` indexes the `target reference` (our `source` assembly) as non-overlapping 11-mers and keeps it in memory
     - The `query` (our `target` assembly) is broken into small chunks and aligned
-    - `nf-chain` handles these tasks under the hood
 
-## Aligner choice
+### Aligner choice
 
 - `BLAT`: very closely related genomes, i.e., 95% or greater identity
 
