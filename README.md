@@ -1,12 +1,17 @@
 [![Pixi Badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/prefix-dev/pixi/main/assets/badge/v0.json)](https://pixi.sh)
 ![Nextflow](https://img.shields.io/badge/Nextflow-v26.4.1-brightgreen)
 
+<p align="center">
+  <img src="assets/nf-chain.svg" alt="nf-chain" width="500">
+</p>
+
 <div align="center"><strong>nf-chain: Generate chain files for genome to genome liftovers</strong></div><br>
 
 ## Brief description
 
-`nf-chain` is an accessible Nextflow workflow for generating `chain` files between a source and target assembly, provided either as a local/remote FASTA file, or an NCBI accession.
+`nf-chain` is an accessible Nextflow workflow for generating `chain` files between source assemblies and one target assembly
 
+- Any number of source assemblies can be provided, either as local/remote FASTA files, or NCBI accessions
 
 ## Quick start
 
@@ -16,13 +21,13 @@ This quick start assumes users have either `Docker`, `Apptainer`, or `Singularit
 2. Clone the Workflow repository: `git clone https://github.com/CormacKinsella/nf-chain.git`
 3. Run `cd nf-chain && pixi install`
 
-You can now run the test (two yeast genomes):
+You can now run the test (two source yeast assemblies against the R64 reference genome target):
 
 `pixi run nextflow main.nf -profile apptainer,test -params-file tests/params.yml`
 
 - Note: to use `singularity` or `docker`, replace `apptainer` with your choice
 
-Or get help with parameters:
+Get help with parameters:
 
 `pixi run help`
 
