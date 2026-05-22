@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/cormackinsella/nf-chain/main/nextflow_schema.json",
+  "title": "cormackinsella/nf-chain pipeline parameters",
+  "description": "Generate chain files for genome liftovers",
+  "type": "object",
+  "properties": {
+    "monochrome_logs": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "help_full": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "show_hidden": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "tracing": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "config_profile_name": {
+      "type": "string",
+      "hidden": true
+    },
+    "config_profile_description": {
+      "type": "string",
+      "hidden": true
+    },
+    "config_profile_contact": {
+      "type": "string",
+      "hidden": true
+    },
+    "config_profile_url": {
+      "type": "string",
+      "hidden": true
+    },
+    "custom_config_version": {
+      "type": "string",
+      "default": "master",
+      "hidden": true
+    },
+    "custom_config_base": {
+      "type": "string",
+      "default": "https://raw.githubusercontent.com/nf-core/configs/master",
+      "hidden": true
+    },
+    "outdir": {
+      "type": "string",
+      "default": "results",
+      "hidden": true
+    },
+    "version": {
+      "type": "boolean",
+      "hidden": true
+    },
+    "validate_params": {
+      "type": "boolean",
+      "default": true,
+      "hidden": true
+    }
+  },
+  "$defs": {
+    "mandatory_parameters": {
+      "title": "Mandatory parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "steps": {
+          "type": "string",
+          "description": "The workflow steps to execute, provided as a csv string",
+          "default": "prepare_inputs,align_assemblies,generate_chains"
+        }
+      },
+      "required": ["steps"]
+    },
+    "slurm_hpc_parameters": {
+      "title": "SLURM/HPC parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "project": {
+          "type": "string",
+          "description": "Provide this when using a SLURM system (project allocation code for hours logging)"
+        }
+      }
+    },
+    "core_parameters": {
+      "title": "Core parameters",
+      "type": "object",
+      "description": "Required in most use cases",
+      "default": "",
+      "properties": {
+        "input": {
+          "type": "string",
+          "format": "file-path",
+          "mimetype": "csv",
+          "description": "Path to input csv samplesheet"
+        },
+        "aligner": {
+          "type": "string",
+          "description": "Genome alignment algorithm. Use BLAT for closer genomes, LASTZ  for more divergent.",
+          "enum": ["blat", "lastz"]
+        },
+        "softmask_source": {
+          "type": "boolean",
+          "description": "Run softmasking on the source assembly?"
+        },
+        "softmask_target": {
+          "type": "boolean",
+          "description": "Run softmasking on the target assembly?"
+        }
+      }
+    },
+    "blat_parameters": {
+      "title": "BLAT parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "chunk_size": {
+          "type": "integer",
+          "default": 4500,
+          "description": "When chunking genomes, use this size for individual FASTA records"
+        },
+        "extra": {
+          "type": "integer",
+          "default": 500,
+          "description": "When chunking genomes, add overlap of this size between FASTA records"
+        },
+        "aggregate_chunk_size": {
+          "type": "integer",
+          "default": 10000000,
+          "description": "Splits tasks into subsets of chunks adding up to this size (bp)"
+        },
+        "exclude_frequent_kmers": {
+          "type": "boolean",
+          "default": true,
+          "description": "Calculate and skip frequent 11-mers"
+        },
+        "blat_fastmap": {
+          "type": "boolean",
+          "description": "Run BLAT in fast mode (very close genomes only)",
+          "default": true
+        },
+        "blat_mask_lower_in_target": {
+          "type": "boolean",
+          "default": true,
+          "description": "BLAT should consider softmasking in the target assembly"
+        },
+        "blat_mask_lower_in_source": {
+          "type": "boolean",
+          "default": true,
+          "description": "BLAT should consider softmasking in the source assembly"
+        },
+        "blat_min_identity": {
+          "type": "integer",
+          "default": 90,
+          "description": "BLAT minimium alignment percentage"
+        },
+        "blat_min_score": {
+          "type": "integer",
+          "default": 30,
+          "description": "BLAT minimum alignment score"
+        }
+      }
+    },
+    "chaining_parameters": {
+      "title": "Chaining parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "axtchain_linear_gap": {
+          "type": "string",
+          "default": "medium",
+          "enum": ["medium", "loose"],
+          "description": "Specify type of linearGap to use (loose = chicken/human linear gap costs, medium is mouse/human)"
+        },
+        "axtchain_min_score": {
+          "type": "integer",
+          "default": 1000,
+          "description": "Minimum score for chain"
+        },
+        "chains_sequential": {
+          "type": "boolean",
+          "description": "If true, mimics UCSC sequential processing of each chrom.chain (not recommended)"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/mandatory_parameters"
+    },
+    {
+      "$ref": "#/$defs/slurm_hpc_parameters"
+    },
+    {
+      "$ref": "#/$defs/core_parameters"
+    },
+    {
+      "$ref": "#/$defs/blat_parameters"
+    },
+    {
+      "$ref": "#/$defs/chaining_parameters"
+    }
+  ]
+}

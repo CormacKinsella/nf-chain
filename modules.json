@@ -1,0 +1,23 @@
+{
+  "name": "",
+  "homePage": "",
+  "repos": {
+    "https://github.com/nf-core/modules.git": {
+      "modules": {
+        "nf-core": {
+          "ncbigenomedownload": {
+            "branch": "master",
+            "git_sha": "46cee3233c7c56524e3c32a52cec089316e09ee5",
+            "installed_by": ["modules"]
+          },
+          "seqkit/split2": {
+            "branch": "master",
+            "git_sha": "f03a30b46ebe59ba12b79115f05ab545d5ca2e5e",
+            "installed_by": ["modules"],
+            "patch": "modules/nf-core/seqkit/split2/seqkit-split2.diff"
+          }
+        }
+      }
+    }
+  }
+}
