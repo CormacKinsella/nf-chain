@@ -1,6 +1,6 @@
 # Params to run the provided test
 
-input               : 'tests/data/samplesheet.csv'
+input               : 'https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/samplesheet.csv'
 steps               : 'prepare_inputs,align_assemblies,generate_chains'
 aligner             : 'blat'
 aggregate_chunk_size: 5000000
