@@ -107,7 +107,8 @@ def validateInputParameters() {
     def permitted_steps = [
         'prepare_inputs',
         'align_assemblies',
-        'generate_chains'
+        'generate_chains',
+        'liftover'
     ]
 
     // Parse requested steps, check, and report if requested steps are valid
@@ -121,7 +122,8 @@ def validateInputParameters() {
     def step_dependencies = [
         'prepare_inputs': [],
         'align_assemblies': ['prepare_inputs'],
-        'generate_chains': ['prepare_inputs', 'align_assemblies']
+        'generate_chains': ['align_assemblies'],
+        'liftover': params.chain_file ? [] : ['generate_chains']
     ]
 
     // Check and report if step dependencies are met
@@ -134,9 +136,13 @@ def validateInputParameters() {
         }
     }
     if ( missing_dependencies ) {
-        error "ERROR: An invalid combination of steps was requested.\n - You requested steps: ${requested_steps.join(', ')}\n - ${missing_dependencies.join('\n  - ')}\n"
+        def hints = []
+        if ( 'liftover' in requested_steps && !params.chain_file ) {
+            hints << "HINT: 'liftover' requires upstream chain generation unless a pre-computed chain file is provided via --chain_file"
+        }
+        def hint_text = hints ? "\n - ${hints.join('\n - ')}" : ""
+        error "ERROR: An invalid combination of steps was requested.\n - You requested steps: ${requested_steps.join(', ')}\n - ${missing_dependencies.join('\n - ')}${hint_text}\n"
     }
-
     // Enforce input for prepare_inputs step if requested
     if ( 'prepare_inputs' in requested_steps && !params.input ) {
         error "ERROR: Input preparation was requested but no input samplesheet was provided with '--input'"
@@ -144,5 +150,9 @@ def validateInputParameters() {
     // Enforce aligner choice for align_assemblies step if requested
     if ( 'align_assemblies' in requested_steps && !params.aligner ) {
         error "ERROR: Alignment was requested but no aligner was specified with '--aligner'"
+    }
+    // If running liftover, enforce input
+    if ( 'liftover' in requested_steps && !params.liftover_input ) {
+        error "ERROR: Liftover was requested but no input was provided with '--liftover_input'"
     }
 }
