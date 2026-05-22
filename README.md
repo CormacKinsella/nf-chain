@@ -2,7 +2,7 @@
 ![Nextflow](https://img.shields.io/badge/Nextflow-v26.4.1-brightgreen)
 
 <p align="center">
-  <img src="assets/nf-chain.svg" alt="nf-chain">
+  <img src="assets/nf-chain.svg" alt="nf-chain" width="500">
 </p>
 
 <div align="center"><strong>nf-chain: Generate chain files for genome to genome liftovers</strong></div><br>
