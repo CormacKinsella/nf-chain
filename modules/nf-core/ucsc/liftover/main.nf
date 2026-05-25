@@ -8,8 +8,8 @@ process UCSC_LIFTOVER {
         'quay.io/biocontainers/ucsc-liftover:482--h0b57e2e_0' }"
 
     input:
-    tuple val(meta), path(bed)
-    path(chain)
+    tuple val(meta) , path(bed)
+    tuple val(meta2), path(chain)
 
     output:
     tuple val(meta), path("*.lifted.bed")  , emit: lifted

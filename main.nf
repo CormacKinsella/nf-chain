@@ -2,6 +2,7 @@ include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_nf-c
 include { PREPARE_FASTAS          } from './subworkflows/local/prepare_fastas/main'
 include { ALIGN_ASSEMBLIES        } from './subworkflows/local/align_assemblies/main'
 include { GENERATE_CHAINS         } from './subworkflows/local/generate_chains/main'
+include { LIFTOVER                } from './subworkflows/local/liftover/main'
 
 workflow {
 
@@ -47,7 +48,6 @@ workflow {
     // Generate chains
     chain = channel.of( [ [], ['Not requested'] ] )
     stats = channel.of( [ [], ['Not requested'] ] )
-
     if ( 'generate_chains' in workflow_steps) {
         GENERATE_CHAINS (
             assemblies,
@@ -59,17 +59,23 @@ workflow {
     }
 
     // Perform liftovers
-    // if ( 'liftover' in workflow_steps) {
-    //     // 'chain' will be the publishing placeholder unless 'generate_chains' ran: in this case overwrite with user input
-    //     if ( !('generate_chains' in workflow_steps) ) {
-    //         // PREPARE INPUT CHAIN FROM INPUT
-    //         chain = channel.fromPath( params.chain_file, checkIfExists: true )
-    //     }
-    //     // TODO Develop liftover
-    //     LIFTOVER (
-    //         chain
-    //     )
-    // }
+    if ( 'liftover' in workflow_steps) {
+        // 'chain' will be the publishing placeholder unless 'generate_chains' ran: in this case overwrite with user input
+        if ( !('generate_chains' in workflow_steps) ) {
+            // PREPARE INPUT CHAIN FROM INPUT
+            channel.fromPath( params.chain_file, checkIfExists: true )
+                .map { path ->
+                    def prefix = path.name.replaceAll(/\.(chain\.gz|chain)$/, '')
+                    [ [ lift: prefix ], path ]
+                }
+                .set { chain }
+        }
+        // TODO liftover source preparation
+        // Run liftover
+        LIFTOVER (
+            chain
+        )
+    }
 
     // Report package versions
     channel.topic('versions')

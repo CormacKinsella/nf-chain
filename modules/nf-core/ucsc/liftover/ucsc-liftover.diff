@@ -1,0 +1,22 @@
+Changes in component 'nf-core/ucsc/liftover'
+Changes in 'ucsc/liftover/main.nf':
+--- modules/nf-core/ucsc/liftover/main.nf
++++ modules/nf-core/ucsc/liftover/main.nf
+@@ -8,8 +8,8 @@
+         'quay.io/biocontainers/ucsc-liftover:482--h0b57e2e_0' }"
+ 
+     input:
+-    tuple val(meta), path(bed)
+-    path(chain)
++    tuple val(meta) , path(bed)
++    tuple val(meta2), path(chain)
+ 
+     output:
+     tuple val(meta), path("*.lifted.bed")  , emit: lifted
+
+'modules/nf-core/ucsc/liftover/environment.yml' is unchanged
+'modules/nf-core/ucsc/liftover/meta.yml' is unchanged
+'modules/nf-core/ucsc/liftover/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/ucsc/liftover/tests/test.config' is unchanged
+'modules/nf-core/ucsc/liftover/tests/main.nf.test' is unchanged
+************************************************************
