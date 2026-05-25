@@ -7,6 +7,13 @@ include { LIFTOVER                } from './subworkflows/local/liftover/main'
 workflow {
 
     main:
+    // Publishing placeholder channels
+    chain    = channel.of( [ [], ['Not requested'] ] )
+    stats    = channel.of( [ [], ['Not done'] ] )
+    lifted   = channel.of( [ [], ['Not requested'] ] )
+    unlifted = channel.of( [ [], ['Not requested'] ] )
+
+    // Run pipeline initialisation & parameter parsing
     PIPELINE_INITIALISATION (
         params.version,         // boolean: Display version and exit
         params.validate_params, // boolean: Boolean whether to validate parameters against the schema at runtime
@@ -16,9 +23,12 @@ workflow {
         params.input,           //  string: Path to input samplesheet
         params.help,            // boolean: Display help message and exit
         params.help_full,       // boolean: Show the full help message
-        params.show_hidden      // boolean: Show hidden parameters in the help message
+        params.show_hidden,     // boolean: Show hidden parameters in the help message
+        chain
     )
     samplesheet = PIPELINE_INITIALISATION.out.samplesheet
+    chain       = PIPELINE_INITIALISATION.out.chain
+    liftover    = PIPELINE_INITIALISATION.out.liftover
 
     // Parse requested workflow steps
     workflow_steps = params.steps.tokenize(",")
@@ -46,8 +56,6 @@ workflow {
     }
 
     // Generate chains
-    chain = channel.of( [ [], ['Not requested'] ] )
-    stats = channel.of( [ [], ['Not requested'] ] )
     if ( 'generate_chains' in workflow_steps) {
         GENERATE_CHAINS (
             assemblies,
@@ -60,21 +68,13 @@ workflow {
 
     // Perform liftovers
     if ( 'liftover' in workflow_steps) {
-        // 'chain' will be the publishing placeholder unless 'generate_chains' ran: in this case overwrite with user input
-        if ( !('generate_chains' in workflow_steps) ) {
-            // PREPARE INPUT CHAIN FROM INPUT
-            channel.fromPath( params.chain_file, checkIfExists: true )
-                .map { path ->
-                    def prefix = path.name.replaceAll(/\.(chain\.gz|chain)$/, '')
-                    [ [ lift: prefix ], path ]
-                }
-                .set { chain }
-        }
-        // TODO liftover source preparation
         // Run liftover
         LIFTOVER (
-            chain
+            chain,
+            liftover
         )
+        lifted   = LIFTOVER.out.lifted
+        unlifted = LIFTOVER.out.unlifted
     }
 
     // Report package versions
@@ -90,24 +90,33 @@ workflow {
 
     // Define publish targets
     publish:
-    versions                   = versions
-    chains                     = chain.map { _meta, path -> [ path ] }
-    stats                      = stats.map { _meta, path -> [ path ] }
+    package_versions = versions
+    chain_files      = chain.map { _meta, path -> [ path ] }
+    chain_stats      = stats.map { _meta, path -> [ path ] }
+    lifted_coords    = lifted.map { _meta, path -> [ path ] }
+    unlifted_coords  = unlifted.map { _meta, path -> [ path ] }
 
 }
 
 // Publish outputs
 output {
     // Version reporting
-    versions {
+    package_versions {
         path '01_pipeline_info/package_versions'
     }
     // Chain files
-    chains {
+    chain_files {
         path '02_chains'
     }
     // Chain stats
-    stats {
+    chain_stats {
         path '03_chain_stats'
+    }
+    // Lift outputs
+    lifted_coords {
+        path '04_liftover'
+    }
+    unlifted_coords {
+        path '05_unlifted'
     }
 }

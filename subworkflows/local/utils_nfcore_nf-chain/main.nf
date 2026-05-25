@@ -17,6 +17,7 @@ workflow PIPELINE_INITIALISATION {
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
+    chain             // Channel: Placeholder channel
 
     main:
     // Print version and exit if requested. Print pipeline parameters to JSON file.
@@ -55,13 +56,57 @@ workflow PIPELINE_INITIALISATION {
     // Custom validation for pipeline parameters (see function below)
     validateInputParameters()
 
-    // Create channel from input samplesheet provided with params.input
-    ch_samplesheet = channel.empty()
+    // Parse requested workflow steps
+    workflow_steps = params.steps.tokenize(",")
 
-    if ( params.input ) {
+    // Prepare liftover inputs
+    liftover = channel.empty()
+    if ( 'liftover' in workflow_steps) {
+        // Parse the liftover input CSV
+        channel.fromPath(params.liftover_input, checkIfExists: true)
+            .splitCsv(header: true, skip: 0)
+            .map { row ->
+                def meta = [
+                    lift: row.lift,
+                    format: row.format.toLowerCase()
+                ]
+                // Check that the formats are accepted
+                if (!['bed', 'gff', 'gtf'].contains(meta.format)) {
+                    error ("ERROR: Liftover samplesheet has an invalid format type: '${meta.format}'. Please only supply 'bed', 'gff', or 'gtf' (not case sensitive).")
+                }
+                return [ meta, [file(row.input)] ]
+            }
+            .set { liftover }
+        // If liftover but no 'generate_chains', make custom chain file channel (else 'chain' = publishing placeholder)
+        if ( !('generate_chains' in workflow_steps) ) {
+            // Get the user provided chain file
+            channel.fromPath( params.chain_file, checkIfExists: true )
+                .map { path ->
+                    def prefix = path.name.replaceAll(/\.(chain\.gz|chain)$/, '')
+                    [ [ lift: prefix ], path ]
+                }
+                .set { chain }
+            // Confirm that there is a valid mapping of lift keys
+            def liftover_keys = liftover.map { meta, inputs -> meta.lift }.unique().collect().map { keys -> [keys] }
+            def chain_keys    = chain.map { meta, path -> meta.lift }.unique().collect().map { keys -> [keys] }
+            liftover_keys
+                .combine( chain_keys )
+                .subscribe { lift_key, chain_key ->
+                    def missing_chains = lift_key - chain_key
+                    if ( missing_chains ) {
+                        error "ERROR:The requested liftover(s): '${missing_chains.join(', ')}' had no match to a chain file prefix. Found chain file prefix: '${chain_key.join(', ')}'"
+                    }
+                }
+        }
+    }
+
+    // Create samplesheet channel if generating chains, and if running liftover also, check inputs are valid
+    ch_samplesheet = channel.empty()
+    if ( 'generate_chains' in workflow_steps) {
+        // Samplesheet generation and validation
         def targetCount = 0 // Counter for target assembly
         def sourceIds = new HashSet<String>() // Track unique source IDs to prevent duplicate source names
-        ch_samplesheet = channel.fromPath(params.input, checkIfExists: true)
+        channel.fromPath(params.input, checkIfExists: true)
             .splitCsv(header: true, skip: 0)
             .map { row ->
                 // Populate metadata
@@ -93,9 +138,38 @@ workflow PIPELINE_INITIALISATION {
                 }
                 return meta
             }
+            .set { ch_samplesheet }
+        // If running liftover, validate the input
+        if ( 'liftover' in workflow_steps ) {
+            // Define valid lift keys, based on the samplesheet metadata (i.e., chain files that will be generated)
+            def target_id = ch_samplesheet
+                .filter { meta -> meta.role == 'target' }
+                .map { meta -> meta.id }
+            def source_ids = ch_samplesheet
+                .filter { meta -> meta.role == 'source' }
+                .map { meta -> meta.id }
+            // Each 'source_to_target' is a valid lift key
+            def valid_lift_keys = source_ids
+                .combine( target_id )
+                .map { source, target -> "${source}_to_${target}" }
+                .collect().map { keys -> [keys] }
+            // Get the lift keys from the liftover input
+            def liftover_keys = liftover.map { meta, inputs -> meta.lift }.unique().collect().map { keys -> [keys] }
+            // Combine and check for validity
+            liftover_keys
+                .combine( valid_lift_keys )
+                .subscribe { lift_key, valid_key ->
+                    def invalid = lift_key - valid_key
+                    if ( invalid ) {
+                         error "ERROR: The requested liftover(s): '${invalid.join(', ')}' had no match to a valid chain file prefix (given the provided samplesheet). Chains that will be generated have the prefixes: ${valid_key.join(', ')}"
+                    }
+                }
+        }
     }
 
     emit:
+    liftover    = liftover
+    chain       = chain
     samplesheet = ch_samplesheet
 
 }

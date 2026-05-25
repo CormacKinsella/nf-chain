@@ -60,12 +60,6 @@
       "type": "boolean",
       "default": true,
       "hidden": true
-    },
-    "chain_file": {
-      "type": "string"
-    },
-    "liftover_input": {
-      "type": "string"
     }
   },
   "$defs": {
@@ -196,6 +190,26 @@
           "description": "If true, mimics UCSC sequential processing of each chrom.chain (not recommended)"
         }
       }
+    },
+    "liftover_parameters": {
+      "title": "Liftover parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "chain_file": {
+          "type": "string",
+          "description": "Path to a custom chain file for liftovers. Not used if 'generate_chains' is found"
+        },
+        "liftover_input": {
+          "type": "string",
+          "description": "Path to liftover input csv"
+        },
+        "preserve_input_positions": {
+          "type": "boolean",
+          "description": "If true, preserves source coordinates during BED liftover (requires BED 4+)"
+        }
+      }
     }
   },
   "allOf": [
@@ -213,6 +227,9 @@
     },
     {
       "$ref": "#/$defs/chaining_parameters"
+    },
+    {
+      "$ref": "#/$defs/liftover_parameters"
     }
   ]
 }

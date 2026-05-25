@@ -5,5 +5,5 @@ steps               : 'prepare_inputs,align_assemblies,generate_chains,liftover'
 aligner             : 'blat'
 blat_fastmap        : true
 aggregate_chunk_size: 5000000
-liftover_input      : "./tests/data/liftover.csv"
+liftover_input      : "./tests/data/liftover-full_test.csv"
 tracing             : true
