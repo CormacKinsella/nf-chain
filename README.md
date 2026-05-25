@@ -13,11 +13,15 @@
 
 - Takes assemblies as NCBI accessions or FASTA files
 
-- Generates `chain` files between a target assembly and any number of `source` assemblies
+- Generates `chain` files between _**any number**_ of `source` assemblies and _**one**_ `target` assembly
 
 - Optionally also runs liftovers on compatible inputs (e.g. `bed` or `gff`)
 
-- For liftover, users can choose to skip `chain` generation and provide their own
+- For liftover, users can choose to skip `chain` generation and provide their own, though see the tip below:
+
+> [!TIP]
+>- If `nf-chain` makes the `chain` files, users can run liftovers on various `source/target` pairings, i.e.: `CIH_to_R64, & Y12_to_R64, & etc...`
+>- However, if providing a `chain` file, users are limited to liftovers on that single `source/target` pairing, i.e.: `CIH_to_R64`
 
 ## Quick start
 
@@ -37,19 +41,35 @@ Get help with parameters:
 
 `pixi run help`
 
-## To run only chain generation
+## Input file setup
+
+### Chain generation samplesheet
+
+TODO
+### Liftover samplesheet
+
+TODO
+
+### User provided chain file
+
+TODO
+
+
+## Example run commands
+
+### To run only chain generation
 
 `pixi run nextflow main.nf -profile apptainer --steps 'prepare_inputs,align_assemblies,generate_chains' --input genomes_samplesheet.csv`
 
-## To run only liftover
+### To run only liftover
 
 `pixi run nextflow main.nf -profile apptainer --steps 'liftover' --chain_file Y12_to_R64.chain.gz --liftover_input liftover_samplesheet.csv`
 
-## To run chain generation and liftover
+### To run chain generation and liftover
 
 `pixi run nextflow main.nf -profile apptainer --steps 'prepare_inputs,align_assemblies,generate_chains,liftover' --input genomes_samplesheet.csv --liftover_input liftover_samplesheet.csv`
 
-### A note on terminology
+## A note on terminology
 
 - Liftovers convert genomic coordinates between genome assemblies
 
@@ -64,7 +84,7 @@ Get help with parameters:
     - `BLAT` indexes the `target reference` (our `source` assembly) as non-overlapping 11-mers and keeps it in memory
     - The `query` (our `target` assembly) is broken into small chunks and aligned
 
-### Aligner choice
+## A note on aligner choice
 
 - `BLAT`: very closely related genomes, i.e., 95% or greater identity
 
