@@ -12,8 +12,11 @@
 `nf-chain` is an accessible Nextflow workflow for genome to genome liftovers
 
     - Takes assemblies as NCBI accessions or FASTA files
+
     - Generates `chain` files between a target assembly and any number of `source` assemblies
+
     - Optionally also runs liftovers on compatible inputs (e.g. `bed` or `gff`)
+
     - For liftover, users can choose to skip `chain` generation and provide their own
 
 ## Quick start
