@@ -26,7 +26,7 @@ This quick start assumes users have either `Docker`, `Apptainer`, or `Singularit
 
 You can now run the test (generates chain files for two source yeast assemblies versus the R64 reference genome target, and carries out an example liftover):
 
-`pixi run nextflow main.nf -profile apptainer,test -params-file tests/params.yml`
+`pixi run nextflow main.nf -profile apptainer,test -params-file tests/params-chain-lift.yml`
 
 - Note: to use `singularity` or `docker`, replace `apptainer` with your choice
 

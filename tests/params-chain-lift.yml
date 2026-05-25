@@ -1,11 +1,9 @@
-# Params to run the provided test
+# Params to run the provided full test
 
 input               : 'https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/samplesheet.csv'
-#steps               : 'liftover'
 steps               : 'prepare_inputs,align_assemblies,generate_chains,liftover'
 aligner             : 'blat'
 blat_fastmap        : true
 aggregate_chunk_size: 5000000
-tracing             : true
-chain_file          : "./tests/data/Y12_to_R64.chain.gz"
 liftover_input      : "./tests/data/liftover.csv"
+tracing             : true

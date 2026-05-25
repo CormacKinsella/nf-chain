@@ -37,7 +37,7 @@ workflow PIPELINE_INITIALISATION {
     after_text = """
     Log issues and questions at: \033[0;92m${workflow.manifest.homePage}/issues\033[0m
     """
-    command = "pixi run nextflow main.nf -profile apptainer,test -params-file tests/params.yml"
+    command = "pixi run nextflow main.nf -profile apptainer,test -params-file tests/params-chain-lift.yml"
     // ~~~ END OF FIXED WHITESPACE ~~~
 
     UTILS_NFSCHEMA_PLUGIN (

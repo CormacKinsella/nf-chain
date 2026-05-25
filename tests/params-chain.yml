@@ -1,0 +1,8 @@
+# Params to run the provided chain generation test
+
+input               : 'https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/samplesheet.csv'
+steps               : 'prepare_inputs,align_assemblies,generate_chains'
+aligner             : 'blat'
+blat_fastmap        : true
+aggregate_chunk_size: 5000000
+tracing             : true
