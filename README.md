@@ -15,13 +15,18 @@
 
 - Generates `chain` files between _**any number**_ of `source` assemblies and _**one**_ `target` assembly
 
-- Optionally also runs coordinate liftovers on compatible inputs (`bed`/`gff`)
+- Optionally also runs coordinate liftovers on compatible inputs (`bed`/`gff`/`gtf`), though see tip 1 below
 
-- For coordinate liftovers, users can choose to skip chain generation and instead provide their own chain file, though see the tip below:
+- For coordinate liftovers, users can choose to skip chain generation and instead provide their own chain file, though see tip 2 below:
 
 > [!TIP]
->- If `nf-chain` builds the `chain` files, users can run any number of liftovers on various `source/target` pairings, i.e.: `CIH_to_R64, & Y12_to_R64, & etc...`
->- However, if providing a `chain` file, users are limited to liftovers on that single `source/target` pairing, i.e.: `CIH_to_R64` (though it still accepts any number of `bed`/`gff` files to lift)
+>
+>_Tip 1_
+>- `gff`/`gtf` liftovers are not recommended, for gene liftovers consider [Liftoff](https://github.com/agshumate/Liftoff)
+>
+>_Tip_2_
+>- If `nf-chain` builds the `chain` files, users can run any number of liftovers for various `source/target` pairings, i.e.: `CIH_to_R64, & Y12_to_R64, & etc...`
+>- However, if providing a `chain` file, users are limited to liftovers for that single `source/target` pairing, i.e.: `CIH_to_R64` (though it still accepts any number of `bed`/`gff` files to lift)
 
 ## Quick start
 
