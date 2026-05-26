@@ -151,7 +151,7 @@ workflow PIPELINE_INITIALISATION {
                     if (targetDupes) {
                         error("ERROR: In '${params.mode}' mode there should not be duplicate target assemblies. Found duplicates: '${targetDupes.join(', ')}'.")
                     }
-                } // else 'many_to_many': no validation
+                } // else 'null/many_to_many': no validation
                 // Compute source × target cross-product and emit one entry per lift
                 def lifts = []
                 sources.each { source_meta ->

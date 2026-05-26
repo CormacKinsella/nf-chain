@@ -72,7 +72,7 @@
         "steps": {
           "type": "string",
           "description": "The workflow steps to execute, provided as a csv string",
-          "default": "prepare_inputs,align_assemblies,generate_chains"
+          "default": "prepare_inputs,align_assemblies,generate_chains,liftover"
         }
       },
       "required": ["steps"]
@@ -99,20 +99,26 @@
           "type": "string",
           "format": "file-path",
           "mimetype": "csv",
-          "description": "Path to input csv samplesheet"
+          "description": "Path to assembly input csv samplesheet"
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["many_to_many", "one_to_many", "many_to_one"],
+          "description": "Optional extra samplesheet validation: e.g., 'many_to_one' enforces unique source assemblies and a single target assembly",
+          "default": "many_to_many"
         },
         "aligner": {
           "type": "string",
-          "description": "Genome alignment algorithm. Use BLAT for closer genomes, LASTZ  for more divergent.",
-          "enum": ["blat", "lastz"]
+          "description": "Assembly alignment algorithm",
+          "enum": ["blat", "lastz", "minimap2"]
         },
         "softmask_source": {
           "type": "boolean",
-          "description": "Run softmasking on the source assembly?"
+          "description": "Run softmasking on the source assembly"
         },
         "softmask_target": {
           "type": "boolean",
-          "description": "Run softmasking on the target assembly?"
+          "description": "Run softmasking on the target assembly"
         }
       }
     },

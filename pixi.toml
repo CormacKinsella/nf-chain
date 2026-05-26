@@ -17,6 +17,7 @@ test-lift         = "nextflow main.nf -profile apptainer,test   -params-file tes
 test-full         = "nextflow main.nf -profile apptainer,test   -params-file tests/params-chain-lift.yml"
 test-singularity  = "nextflow main.nf -profile singularity,test -params-file tests/params-chain-lift.yml"
 test-docker       = "nextflow main.nf -profile docker,test      -params-file tests/params-chain-lift.yml"
+test-dev          = "nextflow main.nf -profile apptainer,test   -params-file tests/params-dev.yml"
 
 [activation.env]
 NXF_SYNTAX_PARSER = "v1"
