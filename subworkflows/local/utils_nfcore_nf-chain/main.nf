@@ -77,7 +77,7 @@ workflow PIPELINE_INITIALISATION {
                 return [ meta, [file(row.input)] ]
             }
             .set { liftover }
-        // If liftover but no 'generate_chains', make custom chain file channel (else 'chain' = publishing placeholder)
+        // If liftover but no 'generate_chains', get user input chain
         if ( !('generate_chains' in workflow_steps) ) {
             // Get the user provided chain file
             channel.fromPath( params.chain_file, checkIfExists: true )
@@ -87,29 +87,26 @@ workflow PIPELINE_INITIALISATION {
                 }
                 .set { chain }
             // Confirm that there is a valid mapping of lift keys
-            def liftover_keys = liftover.map { meta, inputs -> meta.lift }.unique().collect().map { keys -> [keys] }
-            def chain_keys    = chain.map { meta, path -> meta.lift }.unique().collect().map { keys -> [keys] }
+            def liftover_keys = liftover.map { meta, _inputs -> meta.lift }.unique().collect().map { keys -> [keys] }
+            def chain_keys    = chain.map { meta, _path -> meta.lift }.unique().collect().map { keys -> [keys] }
             liftover_keys
                 .combine( chain_keys )
-                .subscribe { lift_key, chain_key ->
-                    def missing_chains = lift_key - chain_key
-                    if ( missing_chains ) {
-                        error "ERROR:The requested liftover(s): '${missing_chains.join(', ')}' had no match to a chain file prefix. Found chain file prefix: '${chain_key.join(', ')}'"
+                .subscribe { requested_key, valid_key ->
+                    def invalid = requested_key - valid_key
+                    if ( invalid ) {
+                        error "ERROR:The requested liftover(s): '${invalid.join(', ')}' had no match to a chain file prefix. Found chain file prefix: '${valid_key.join(', ')}'"
                     }
                 }
         }
     }
 
-    // Create samplesheet channel if generating chains, and if running liftover also, check inputs are valid
+    // Create samplesheet channel if generating chains + if running generation alongside liftover, check inputs are valid
     ch_samplesheet = channel.empty()
-    if ( 'generate_chains' in workflow_steps) {
-        // Samplesheet generation and validation
-        def targetCount = 0 // Counter for target assembly
-        def sourceIds = new HashSet<String>() // Track unique source IDs to prevent duplicate source names
+    if ('prepare_inputs' in workflow_steps || 'generate_chains' in workflow_steps) {
+        // Parse samplesheet into metadata, collect all entries, validate minimums, then re-emit
         channel.fromPath(params.input, checkIfExists: true)
             .splitCsv(header: true, skip: 0)
             .map { row ->
-                // Populate metadata
                 def meta = [
                     id: row.sample_name,
                     role: row.file_role.toLowerCase(),
@@ -118,50 +115,76 @@ workflow PIPELINE_INITIALISATION {
                 ]
                 // Check that the roles assigned are valid
                 if (!['target', 'source'].contains(meta.role)) {
-                    error ("ERROR: Samplesheet has an invalid file role: '${meta.role}'. Please only supply 'target, 'source' (not case sensitive).")
-                }
-                // Enforce max one target assembly
-                if (meta.role == 'target') {
-                    targetCount++
-                    if (targetCount > 1) {
-                        error ("ERROR: There cannot be more than one target assembly. Found ${targetCount} entries with file role 'target' in the samplesheet.")
-                    }
-                } else if (meta.role == 'source') {
-                    // Enforce unique source identifiers
-                    if (!sourceIds.add(meta.id)) {
-                        error ("ERROR: Duplicate source assembly identifier found: '${meta.id}'. Please ensure all source assemblies have unique identifiers.")
-                    }
+                    error("ERROR: Samplesheet has an invalid file role: '${meta.role}'. Please only supply 'target' or 'source' (not case sensitive).")
                 }
                 // Check that the identifier types are valid
                 if (!['accession', 'fasta'].contains(meta.type)) {
-                    error ("ERROR: Samplesheet has an invalid identifier type: '${meta.type}'. Please only supply 'accession' or 'fasta' (not case sensitive).")
+                    error("ERROR: Samplesheet has an invalid identifier type: '${meta.type}'. Please only supply 'accession' or 'fasta' (not case sensitive).")
                 }
                 return meta
             }
+            .collect()
+            .flatMap { entries ->
+                // Validate at least one source and one target exist
+                def targets = entries.findAll { it.role == 'target' }
+                def sources = entries.findAll { it.role == 'source' }
+                if (targets.size() == 0) {
+                    error("ERROR: Samplesheet must contain at least one 'target' assembly. Found none.")
+                }
+                if (sources.size() == 0) {
+                    error("ERROR: Samplesheet must contain at least one 'source' assembly. Found none.")
+                }
+                // Mode-based validation
+                if (params.mode == 'many_to_one') {
+                    if (targets.size() > 1) {
+                        error("ERROR: In '${params.mode}' mode there can only be one target assembly. Found ${targets.size()}.")
+                    }
+                    def sourceDupes = sources.collect { it.id }.groupBy { it }.findAll { k, v -> v.size() > 1 }.keySet()
+                    if (sourceDupes) {
+                        error("ERROR: In '${params.mode}' mode there should not be duplicate source assemblies. Found duplicates: '${sourceDupes.join(', ')}'.")
+                    }
+                } else if (params.mode == 'one_to_many') {
+                    if (sources.size() > 1) {
+                        error("ERROR: In '${params.mode}' mode there can only be one source assembly. Found ${sources.size()}.")
+                    }
+                    def targetDupes = targets.collect { it.id }.groupBy { it }.findAll { k, v -> v.size() > 1 }.keySet()
+                    if (targetDupes) {
+                        error("ERROR: In '${params.mode}' mode there should not be duplicate target assemblies. Found duplicates: '${targetDupes.join(', ')}'.")
+                    }
+                } // else 'many_to_many': no validation
+                // Compute source × target cross-product and emit one entry per lift
+                def lifts = []
+                sources.each { source_meta ->
+                    targets.each { target_meta ->
+                        lifts << [
+                            lift:   "${source_meta.id}_to_${target_meta.id}",
+                            source: source_meta,
+                            target: target_meta
+                        ]
+                    }
+                }
+                return lifts
+            }
             .set { ch_samplesheet }
-        // If running liftover, validate the input
-        if ( 'liftover' in workflow_steps ) {
-            // Define valid lift keys, based on the samplesheet metadata (i.e., chain files that will be generated)
-            def target_id = ch_samplesheet
-                .filter { meta -> meta.role == 'target' }
-                .map { meta -> meta.id }
-            def source_ids = ch_samplesheet
-                .filter { meta -> meta.role == 'source' }
-                .map { meta -> meta.id }
-            // Each 'source_to_target' is a valid lift key
-            def valid_lift_keys = source_ids
-                .combine( target_id )
-                .map { source, target -> "${source}_to_${target}" }
-                .collect().map { keys -> [keys] }
-            // Get the lift keys from the liftover input
-            def liftover_keys = liftover.map { meta, inputs -> meta.lift }.unique().collect().map { keys -> [keys] }
-            // Combine and check for validity
+
+        // If running liftover, validate that requested lift keys match what we'll generate
+        if ('liftover' in workflow_steps) {
+            def valid_lift_keys = ch_samplesheet
+                .map { meta -> meta.lift }
+                .unique()
+                .collect()
+                .map { keys -> [keys] }
+            def liftover_keys = liftover
+                .map { meta, _inputs -> meta.lift }
+                .unique()
+                .collect()
+                .map { keys -> [keys] }
             liftover_keys
-                .combine( valid_lift_keys )
+                .combine(valid_lift_keys)
                 .subscribe { lift_key, valid_key ->
                     def invalid = lift_key - valid_key
-                    if ( invalid ) {
-                         error "ERROR: The requested liftover(s): '${invalid.join(', ')}' had no match to a valid chain file prefix (given the provided samplesheet). Chains that will be generated have the prefixes: ${valid_key.join(', ')}"
+                    if (invalid) {
+                        error("ERROR: The requested liftover(s): '${invalid.join(', ')}' had no match to a valid chain file prefix. Chains that will be generated have the prefixes: ${valid_key.join(', ')}")
                     }
                 }
         }
