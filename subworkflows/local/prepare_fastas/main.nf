@@ -7,13 +7,19 @@ workflow PREPARE_FASTAS {
     samplesheet
 
     main:
-    // Separate local FASTA from accessions to download
+    // Flatten to unique assemblies & branch on the identifier
     samplesheet
+        .flatMap { entry -> [entry.source, entry.target] }
+        .unique { meta -> "${meta.identifier}_${meta.role}" } // 'meta.identifier' is source of truth for uniqueness, but get duplicate if assembly serves both roles at least once (self -> self will not be run however)
+        .set { unique_identifiers }
+
+    // Branch on identifier type
+    unique_identifiers
         .branch { meta ->
             accession: meta.type == 'accession'
                 return meta
             fasta: meta.type == 'fasta'
-                return tuple( meta, file(meta.identifier, checkIfExists: true) )
+                return [ meta, file(meta.identifier, checkIfExists: true) ]
         }.set { input }
 
     // Get assemblies provided as accessions

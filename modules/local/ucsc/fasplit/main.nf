@@ -1,6 +1,6 @@
 process SPLIT_FASTA {
 
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     // Note: manually update the package versions, tool does not have --version flag
@@ -21,7 +21,7 @@ process SPLIT_FASTA {
     def args = task.ext.args ?: ''
     """
     # Run faSplit
-    faSplit size -oneFile -lift=${meta.role}.lift ${args} ${assembly} ${length} ${meta.role}
+    faSplit size -oneFile -lift=${meta.id}_${meta.role}.lift ${args} ${assembly} ${length} ${meta.id}_${meta.role}
     """
 
 }

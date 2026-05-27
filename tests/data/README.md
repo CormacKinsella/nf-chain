@@ -1,6 +1,6 @@
 # Test data provenance
 
-- The CIH assembly is available via the ScRAPdb resource:
+- The CIH & Y12 assemblies are available via the ScRAPdb resource:
     - [Paper](https://academic.oup.com/nar/article/53/D1/D852/7848847)
     - [Download assemblies](https://www.evomicslab.org/db/ScRAPdb/download/)
 

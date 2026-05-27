@@ -9,8 +9,7 @@ process BLAT {
         'community.wave.seqera.io/library/ucsc-blat_ucsc-liftup:482--595a990204ffd428' }"
 
     input:
-    tuple val(meta) , path(target_reference), path(source_lift), path(ooc11), val(meta2), path(query)
-    tuple val(meta3), path(target_lift)
+    tuple val(meta), path(target_reference), path(source_lift), path(ooc11), path(query), path(target_lift)
 
     output:
     tuple val(meta), path("*lifted.psl"), emit: blat_psl

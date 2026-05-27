@@ -1,0 +1,69 @@
+Changes in component 'nf-core/ucsc/liftover'
+'modules/nf-core/ucsc/liftover/environment.yml' is unchanged
+'modules/nf-core/ucsc/liftover/meta.yml' is unchanged
+Changes in 'ucsc/liftover/main.nf':
+--- modules/nf-core/ucsc/liftover/main.nf
++++ modules/nf-core/ucsc/liftover/main.nf
+@@ -1,40 +1,36 @@
+ process UCSC_LIFTOVER {
+-    tag "$meta.id"
+-    label 'process_low'
++    tag "${meta.lift}.${liftover}"
++    label 'process_single'
+ 
+-    conda "${moduleDir}/environment.yml"
++    // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions
+     container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
+         'https://depot.galaxyproject.org/singularity/ucsc-liftover:482--h0b57e2e_0' :
+         'quay.io/biocontainers/ucsc-liftover:482--h0b57e2e_0' }"
+ 
+     input:
+-    tuple val(meta), path(bed)
+-    path(chain)
++    tuple val(meta), path(chain), path(liftover)
+ 
+     output:
+-    tuple val(meta), path("*.lifted.bed")  , emit: lifted
+-    tuple val(meta), path("*.unlifted.bed"), emit: unlifted
+-    tuple val("${task.process}"), val('ucsc'), val('482'), topic: versions, emit: versions_ucsc
+-    // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
++    tuple val(meta), path("*.lifted.*")  , emit: lifted
++    tuple val(meta), path("*.unlifted.*"), emit: unlifted
++    // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions
++    tuple val("${task.process}"), val('liftover'), val('482'), topic: versions, emit: versions_ucsc
++
+     when:
+     task.ext.when == null || task.ext.when
+ 
+     script:
+     def args = task.ext.args ?: ''
+-    def prefix = task.ext.prefix ?: "${meta.id}"
++    def name = liftover.name.replaceAll(/\.gz$/, '')
+     """
+     liftOver \\
+-        $args \
+-        $bed \\
+-        $chain \\
+-        ${prefix}.lifted.bed \\
+-        ${prefix}.unlifted.bed
+-    """
+-    stub:
+-    def prefix = task.ext.prefix ?: "${meta.id}"
+-    """
+-    touch ${prefix}.lifted.bed
+-    touch ${prefix}.unlifted.bed
++        ${args} \\
++        ${liftover} \\
++        ${chain} \\
++        ${meta.lift}.lifted.${name} \\
++        ${meta.lift}.unlifted.${name}
++
++    gzip ${meta.lift}.*lifted.${name}
+     """
+ 
+ }
+
+'modules/nf-core/ucsc/liftover/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/ucsc/liftover/tests/main.nf.test' is unchanged
+'modules/nf-core/ucsc/liftover/tests/test.config' is unchanged
+************************************************************

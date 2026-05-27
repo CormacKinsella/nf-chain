@@ -1,0 +1,4 @@
+lift,format,input
+Y12_to_R64,bed,./tests/data/original_coords.bed
+Y12_to_R64,gff,./tests/data/original_coords.gff
+CIH_HP1_to_R64,bed,./tests/data/original_coords.2.bed

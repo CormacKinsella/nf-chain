@@ -1,0 +1,9 @@
+# Params to run the provided full test
+
+input               : 'https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/samplesheet.csv'
+steps               : 'prepare_inputs,align_assemblies,generate_chains,liftover'
+aligner             : 'blat'
+blat_fastmap        : true
+aggregate_chunk_size: 5000000
+liftover_input      : "./tests/data/liftover-full_test.csv"
+tracing             : true

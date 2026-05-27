@@ -71,25 +71,37 @@ workflow ALIGN_ASSEMBLIES {
             )
 
         // BLAT
-            // Prepare BLAT input channel
+            // Prepare source and target sides of the input
             PROCESS_SOURCE.out.assembly
                 .join( PROCESS_SOURCE.out.lift )
                 .join( ooc11 )
+                .set { source_side }
+            SPLIT_TARGET.out.aggregated_chunks
+                .transpose()
                 .combine(
-                    SPLIT_TARGET.out.aggregated_chunks
-                        .transpose()
+                    PROCESS_TARGET.out.lift,
+                    by: 0
                 )
-                .map { meta, source_fa, source_lift, ooc11, meta2, target_fa ->   // Add "source to target" metas
-                    def source_meta = meta + [ lift: "${meta.id}_to_${meta2.id}" ]
-                    def target_meta = meta2 + [ lift: "${meta.id}_to_${meta2.id}" ]
-                    [ source_meta, source_fa, source_lift, ooc11, target_meta, target_fa ]
+                .set { target_side }
+            // Combine source and target
+            source_side
+                .combine( target_side )
+                .filter { source_meta, _source_fa, _source_lift, _ooc, target_meta, target_chunk, _target_lift ->
+                    def retained = source_meta.id != target_meta.id  // Exclude self-to-self
+                    if ( !retained ) {
+                        log.warn "Excluding self-to-self alignment for ${source_meta.id} to ${target_chunk.name}"
+                    }
+                    return retained
+                }
+                .map { source_meta, source_fa, source_lift, ooc, target_meta, target_chunk, target_lift ->
+                    def meta_new = source_meta + [ lift: "${source_meta.id}_to_${target_meta.id}" ]
+                    [ meta_new, source_fa, source_lift, ooc, target_chunk, target_lift ]
                 }
                 .set { blat_input }
-            // Align and run liftup (sequential for job scheduler efficiency)
-            target_lift = PROCESS_TARGET.out.lift.collect() // Assign to value channel (collect on target is safe, only one assembly)
+
+            // Align and run liftup
             BLAT (
-                blat_input,
-                target_lift
+                blat_input
             )
             blat_psl = BLAT.out.blat_psl
     }

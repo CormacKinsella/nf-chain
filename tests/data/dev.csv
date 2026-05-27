@@ -1,0 +1,5 @@
+sample_name,file_role,identifier_type,identifier
+R64,source,accession,GCF_000146045.2
+Y12,target,fasta,https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/Y12.asm01.HP0.nuclear_genome.tidy.fa
+CIH_HP1,target,fasta,https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/CIH.asm01.HP1.nuclear_genome.tidy.fa.gz
+CIH_HP1,source,fasta,https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/CIH.asm01.HP1.nuclear_genome.tidy.fa.gz

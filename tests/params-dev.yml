@@ -1,0 +1,10 @@
+# Params to run developement tests
+
+input               : './tests/data/dev.csv'
+steps               : 'prepare_inputs,align_assemblies,generate_chains,liftover'
+aligner             : 'blat'
+blat_fastmap        : true
+aggregate_chunk_size: 5000000
+tracing             : true
+mode                : 'many_to_many'
+liftover_input      : './tests/data/dev_liftover.csv'

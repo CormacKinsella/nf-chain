@@ -1,6 +1,6 @@
 process KMERS_TO_EXCLUDE {
 
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_single'
 
     // Note: manually update the package versions, tool does not have --version flag
