@@ -5,9 +5,12 @@
 #
 # ─────────────────────────────────────────────────────────────────────────────────
 
-FROM ghcr.io/prefix-dev/pixi:latest AS build
+FROM ghcr.io/prefix-dev/pixi:latest
+
+ENV PIXI_HOME=/opt/pixi
 
 RUN pixi global install -c conda-forge -c bioconda ucsc-axtchain ucsc-chainbridge
 
-CMD ["bash"]
+ENV PATH="/opt/pixi/bin:${PATH}"
 
+CMD ["bash"]

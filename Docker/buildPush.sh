@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE_VERSION=1.0
+IMAGE_VERSION=1.3
 IMAGE_NAME="ghcr.io/cormackinsella/pixi-axtchain-chainbridge"
 
 # Build image
