@@ -31,6 +31,10 @@
 >- If `nf-chain` builds the `chain` files, users can run any number of liftovers for various `source/target` pairings, i.e.: `CIH_to_R64, & Y12_to_R64, & etc...`
 >- However, if providing a `chain` file, users are limited to liftovers for that single `source/target` pairing, i.e.: `CIH_to_R64` (though it still accepts any number of `bed` files to lift)
 
+<p align="center">
+  <img src="assets/full.svg" alt="metro-map">
+</p>
+
 ## Quick start
 
 This quick start assumes users have either `Docker`, `Apptainer`, or `Singularity` installed
