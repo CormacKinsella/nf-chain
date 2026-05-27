@@ -27,7 +27,7 @@
 >**Tip 2**
 >- `gff`/`gtf` liftovers are not recommended, for gene liftovers consider [Liftoff](https://github.com/agshumate/Liftoff)
 >
->**Tip_3**
+>**Tip 3**
 >- If `nf-chain` builds the `chain` files, users can run any number of liftovers for various `source/target` pairings, i.e.: `CIH_to_R64, & Y12_to_R64, & etc...`
 >- However, if providing a `chain` file, users are limited to liftovers for that single `source/target` pairing, i.e.: `CIH_to_R64` (though it still accepts any number of `bed` files to lift)
 
@@ -88,7 +88,7 @@ The liftover samplesheet (`.csv` format) specifies the files to lift and which c
 
 - `lift`: the lift key / chain prefix to use during liftover
     - This should be formatted as `source_to_target`, where `source` and `target` match assembly samplesheet `sample_name` entries
-    - If a lift is requested that finds no valid pairing, `nf-chain` will output troublshooting information, e.g.:
+    - If a lift is requested that finds no valid pairing, `nf-chain` will output troubleshooting information, e.g.:
 
 ```
 ERROR: The requested liftover(s): 'CIH_HP1_to_hg38' had no match to a valid chain file prefix. Chains that will be generated have the prefixes: CIH_HP1_to_R64, Y12_to_R64
