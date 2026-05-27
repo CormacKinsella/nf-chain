@@ -86,10 +86,13 @@ workflow ALIGN_ASSEMBLIES {
             // Combine source and target
             source_side
                 .combine( target_side )
-                // TODO - uncomment this filter
-                // .filter { source_meta, _source_fa, _source_lift, _ooc, target_meta, _target_chunk, _target_lift ->
-                //     source_meta.id != target_meta.id  // Exclude self-to-self
-                // }
+                .filter { source_meta, _source_fa, _source_lift, _ooc, target_meta, target_chunk, _target_lift ->
+                    def retained = source_meta.id != target_meta.id  // Exclude self-to-self
+                    if ( !retained ) {
+                        log.warn "Excluding self-to-self alignment for ${source_meta.id} to ${target_chunk.name}"
+                    }
+                    return retained
+                }
                 .map { source_meta, source_fa, source_lift, ooc, target_meta, target_chunk, target_lift ->
                     def source_meta2 = source_meta + [ lift: "${source_meta.id}_to_${target_meta.id}" ]
                     def target_meta2 = target_meta + [ lift: "${source_meta.id}_to_${target_meta.id}" ]
