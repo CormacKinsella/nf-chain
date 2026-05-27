@@ -22,7 +22,7 @@
 > [!TIP]
 >
 >**Tip 1**
->- "Many sources to many targets" mode is the default. Users can also run in "one to many" or "many to one" modes to enforce respective validation of their assembly samplesheet
+>- `many_to_many` (many sources to many targets) mode is the default. Users can also run in `one_to_many` or `many_to_one` modes to apply respective validation on their assembly samplesheet
 >
 >**Tip 2**
 >- `gff`/`gtf` liftovers are not recommended, for gene liftovers consider [Liftoff](https://github.com/agshumate/Liftoff)
