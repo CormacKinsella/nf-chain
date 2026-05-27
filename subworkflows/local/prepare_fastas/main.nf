@@ -10,16 +10,16 @@ workflow PREPARE_FASTAS {
     // Flatten to unique assemblies & branch on the identifier
     samplesheet
         .flatMap { entry -> [entry.source, entry.target] }
-        .unique { meta -> meta.identifier } // 'meta.identifier' is the source of truth for uniqueness rather than sample name
-        .set { unique_assemblies }
+        .unique { meta -> "${meta.identifier}_${meta.role}" } // 'meta.identifier' is source of truth for uniqueness, but get duplicate if assembly serves both roles at least once (self -> self will not be run however)
+        .set { unique_identifiers }
 
     // Branch on identifier type
-    unique_assemblies
+    unique_identifiers
         .branch { meta ->
             accession: meta.type == 'accession'
                 return meta
             fasta: meta.type == 'fasta'
-                return tuple( meta, file(meta.identifier, checkIfExists: true) )
+                return [ meta, file(meta.identifier, checkIfExists: true) ]
         }.set { input }
 
     // Get assemblies provided as accessions
@@ -31,18 +31,6 @@ workflow PREPARE_FASTAS {
     UNZIP_ASSEMBLY (
         input.fasta
     )
-
-    // TODO
-    // After download completes, rejoin all assemblies back to samplesheet lifts by ID
-    // e.g., downloaded_assemblies = DOWNLOAD_ACCESSION(input.accession)
-    //        all_assemblies = downloaded_assemblies.mix(input.fasta)
-    //
-    // Then rejoin with the lift-level samplesheet:
-    // ch_source_ready = samplesheet
-    //     .map { entry -> [entry.source.id, entry] }
-    //     .combine(all_assemblies.map { meta, fasta -> [meta.id, fasta] }, by: 0)
-    //     .map { id, entry, fasta -> [entry, fasta] }
-
 
     // Mix assemblies
     DOWNLOAD_ASSEMBLY.out.assembly
