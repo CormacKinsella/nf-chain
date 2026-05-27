@@ -1,2 +1,2 @@
 lift,format,input
-R64_to_R64,bed,./tests/data/original_coords.bed
+CIH_HP1_to_Y12,bed,./tests/data/original_coords.bed

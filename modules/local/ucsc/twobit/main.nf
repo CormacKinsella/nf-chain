@@ -1,6 +1,6 @@
 process FASTA_TO_TWOBIT {
 
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
     // Note: manually update the package versions, tool does not have --version flag

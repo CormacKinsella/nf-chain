@@ -94,9 +94,8 @@ workflow ALIGN_ASSEMBLIES {
                     return retained
                 }
                 .map { source_meta, source_fa, source_lift, ooc, target_meta, target_chunk, target_lift ->
-                    def source_meta2 = source_meta + [ lift: "${source_meta.id}_to_${target_meta.id}" ]
-                    def target_meta2 = target_meta + [ lift: "${source_meta.id}_to_${target_meta.id}" ]
-                    [ source_meta2, source_fa, source_lift, ooc, target_meta2, target_chunk, target_lift ]
+                    def meta_new = source_meta + [ lift: "${source_meta.id}_to_${target_meta.id}" ]
+                    [ meta_new, source_fa, source_lift, ooc, target_chunk, target_lift ]
                 }
                 .set { blat_input }
 
