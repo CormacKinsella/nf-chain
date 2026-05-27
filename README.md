@@ -31,9 +31,15 @@
 >- If `nf-chain` builds the `chain` files, users can run any number of liftovers for various `source/target` pairings, i.e.: `CIH_to_R64, & Y12_to_R64, & etc...`
 >- However, if providing a `chain` file, users are limited to liftovers for that single `source/target` pairing, i.e.: `CIH_to_R64` (though it still accepts any number of `bed` files to lift)
 
+## Workflow layout
+
+
 <p align="center">
   <img src="assets/full.svg" alt="metro-map">
 </p>
+
+Metro-map of a complete run using the BLAT aligner - *image generated using [nf-metro](https://github.com/pinin4fjords/nf-metro) v0.7.2*
+
 
 ## Quick start
 
