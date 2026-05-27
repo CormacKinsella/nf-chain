@@ -9,11 +9,11 @@ process NET_CHAIN {
         'community.wave.seqera.io/library/ucsc-chainnet_ucsc-chainstitchid_ucsc-netchainsubset:482--2a99db76a6a05028' }"
 
     input:
-    tuple val(meta), path(input), path(source_sizes)
-    tuple val(meta2), path(target_sizes)
+    tuple val(meta), path(input), path(source_sizes), path(target_sizes)
 
     output:
     tuple val(meta), path("${meta.lift}.chain.gz"), emit: final_chain
+    tuple val(meta), path("${meta.lift}.chain.gz"), path(source_sizes), path(target_sizes), emit: chain_stats_in
     // Note: manually update the package versions, tool does not have --version flag
     tuple val(task.process), val('chainnet'), val('482'), topic: versions
     tuple val(task.process), val('netchainsubset'), val('482'), topic: versions

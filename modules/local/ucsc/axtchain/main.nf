@@ -7,8 +7,7 @@ process AXTCHAIN {
     container "docker://ghcr.io/cormackinsella/pixi-axtchain-chainbridge:latest"
 
     input:
-    tuple val(meta) , path(input), path(source_twobit)
-    tuple val(meta2), path(target_twobit)
+    tuple val(meta), path(input), path(source_twobit), path(target_twobit)
 
     output:
     tuple val(meta), path("*.chain"), emit: axtchain

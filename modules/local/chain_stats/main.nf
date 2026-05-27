@@ -9,8 +9,7 @@ process CHAIN_STATS {
         'community.wave.seqera.io/library/htslib:1.23.1--45117a0a8dbaa21c' }"
 
     input:
-    tuple val(meta), path(input), path(source_sizes)
-    tuple val(meta2), path(target_sizes)
+    tuple val(meta), path(input), path(source_sizes), path(target_sizes)
 
     output:
     tuple val(meta), path("*chain.stats.tsv"), emit: chain_stats

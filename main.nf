@@ -59,6 +59,7 @@ workflow {
     if ( 'generate_chains' in workflow_steps) {
         GENERATE_CHAINS (
             assemblies,
+            samplesheet,
             params.aligner,
             blat_psl
         )
