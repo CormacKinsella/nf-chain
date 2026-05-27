@@ -2,5 +2,5 @@
 
 steps               : 'liftover'
 tracing             : true
-chain_file          : "./tests/data/Y12_to_R64.chain.gz"
-liftover_input      : "./tests/data/liftover-lift_only.csv"
+chain_file          : 'https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/Y12_to_R64.chain.gz'
+liftover_input      : 'https://raw.githubusercontent.com/CormacKinsella/nf-chain/main/tests/data/liftover-lift_only.csv'

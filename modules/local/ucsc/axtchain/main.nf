@@ -4,7 +4,9 @@ process AXTCHAIN {
     label 'process_single'
 
     // Note: manually update the package versions, tool does not have --version flag
-    container "docker://ghcr.io/cormackinsella/pixi-axtchain-chainbridge:latest"
+    container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
+        'docker://ghcr.io/cormackinsella/pixi-axtchain-chainbridge:latest' :
+        'ghcr.io/cormackinsella/pixi-axtchain-chainbridge:latest' }"
 
     input:
     tuple val(meta), path(input), path(source_twobit), path(target_twobit)
