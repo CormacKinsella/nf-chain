@@ -79,7 +79,7 @@ workflow GENERATE_CHAINS {
                 .groupTuple()
         )
 
-        // Combine merged chains with source chrom sizes
+        // Combine merged chains with source and target chrom sizes
         MERGE_CHAINS.out.merged_chain
             .map { meta, chain -> [ meta.lift, meta, chain ] }
             .combine(
