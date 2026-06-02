@@ -1,0 +1,3 @@
+sample_name,file_role,identifier_type,identifier
+ramb,source,fasta,/gorilla/proj/processing_sheep/private/cormac/grave_benchmarking/post_run_processing/04_run_lift/x_assemblies/GCF_016772045.2_ARS-UI_Ramb_v3.0_genomic.fna
+noir,target,fasta,/gorilla/proj/processing_sheep/private/cormac/grave_benchmarking/post_run_processing/04_run_lift/x_assemblies/GCA_965363385.1_seqoccin.Sh.SAMEA118215306_genomic.fna

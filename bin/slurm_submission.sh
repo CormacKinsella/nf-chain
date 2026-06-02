@@ -7,9 +7,9 @@ set -euo pipefail
 
 PIPELINE_NAME=nf-chain
 TMUX_SESSION_NAME=nf-chain
-REPO_PATH=/path/to/repository/nf-chain
-PIXI_COMMAND="pixi run nextflow main.nf -profile uppmax -params-file params.yml --project <ALLOCATION>"
-SINGULARITY_CACHE_DIRECTORY="/path/to/shared/singularity/cache"
+REPO_PATH=/home/corma/grave_benchmarking/post_run_processing/04_run_lift/z_nf-chain
+PIXI_COMMAND="pixi run nextflow main.nf -profile uppmax -params-file params.yml --project uppmax2025-2-425"
+SINGULARITY_CACHE_DIRECTORY="/proj/processing_sheep/private/cormac/singularity_cache"
 
 
 
