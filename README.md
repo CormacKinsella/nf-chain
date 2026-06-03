@@ -61,7 +61,7 @@ You can now run the test, which generates chain files between two source yeast a
 
 The chain generation samplesheet (`.csv` format) specifies the assemblies and which roles they should serve:
 
-- Provided this file to `nf-chain` with `--input`
+- Provide this file to `nf-chain` with `--input`
 
 | sample_name | file_role | identifier_type | identifier |
 |-------------|-----------|-----------------|-------------------------------------------------|
