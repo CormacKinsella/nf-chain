@@ -8,37 +8,29 @@ include { BLAT                          } from '../../../modules/local/ucsc/blat
 workflow BLAT_ALIGNMENT {
 
     take:
-    fasta
+    source_assembly
+    target_assembly
     chunk_size
     extra
     aggregate_chunk_size
     exclude_frequent_kmers
 
     main:
-    // Branch source and target FASTA files into separate channels
-    fasta
-        .branch { meta, sequence ->
-            source: meta.role == 'source'
-                [ meta, sequence ]
-            target: meta.role == 'target'
-                [ meta, sequence ]
-        }.set { assembly }
-
     // Prepare source assemblies
         // Gets the size of the longest source scaffold and the real (non-N) base count of the whole assembly
         COMPUTE_SIZES (
-            assembly.source
+            source_assembly
         )
         // Processes each source assembly without splitting chromosomes and gets lift file
         PROCESS_SOURCE (
-            assembly.source
+            source_assembly
                 .join( COMPUTE_SIZES.out.max_size ) // Split size set to max contig length = just generates lift without split
         )
         // Computes over-used 11-mers in each source (https://genomewiki.ucsc.edu/index.php/DoSameSpeciesLiftOver.pl)
         ooc11 = channel.of( [ [], [] ] ).collect()
         if ( exclude_frequent_kmers ) {
             KMERS_TO_EXCLUDE (
-                assembly.source
+                source_assembly
                     .join( COMPUTE_SIZES.out.real_size )
                     .map { meta, sequence, size ->
                         def raw     = Math.floor(1024 * (size as Long / 2861349177)) as Integer
@@ -52,7 +44,7 @@ workflow BLAT_ALIGNMENT {
     // Prepare the target assembly
         // Chunks target into 5kb segments and gets lift file
         PROCESS_TARGET (
-            assembly.target
+            target_assembly
                 .map { meta, sequence ->
                     [ meta, sequence, chunk_size ]
                 }
@@ -92,7 +84,6 @@ workflow BLAT_ALIGNMENT {
                 [ meta_new, source_fa, source_lift, ooc, target_chunk, target_lift ]
             }
             .set { blat_input }
-
         // Align and run liftup
         BLAT (
             blat_input
