@@ -171,29 +171,35 @@
           "type": "integer",
           "default": 30,
           "description": "BLAT minimum alignment score"
-        }
-      }
-    },
-    "chaining_parameters": {
-      "title": "Chaining parameters",
-      "type": "object",
-      "description": "",
-      "default": "",
-      "properties": {
+        },
         "axtchain_linear_gap": {
           "type": "string",
           "default": "medium",
           "enum": ["medium", "loose"],
-          "description": "Specify type of linearGap to use (loose = chicken/human linear gap costs, medium is mouse/human)"
+          "description": "Chaining: specify type of linearGap to use (loose = chicken/human linear gap costs, medium is mouse/human)"
         },
         "axtchain_min_score": {
           "type": "integer",
           "default": 1000,
-          "description": "Minimum score for chain"
+          "description": "Chaining: minimum score for chain"
         },
         "chains_sequential": {
           "type": "boolean",
-          "description": "If true, mimics UCSC sequential processing of each chrom.chain (not recommended)"
+          "description": "Chaining: if true, mimics UCSC sequential processing of each chrom.chain (not recommended)"
+        }
+      }
+    },
+    "minimap2_parameters": {
+      "title": "Minimap2 parameters",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "minimap2_preset": {
+          "type": "string",
+          "default": "asm10",
+          "description": "Minimap2 preset (see minimap2 docs)",
+          "enum": ["asm5", "asm10", "asm20"]
         }
       }
     },
@@ -232,7 +238,7 @@
       "$ref": "#/$defs/blat_parameters"
     },
     {
-      "$ref": "#/$defs/chaining_parameters"
+      "$ref": "#/$defs/minimap2_parameters"
     },
     {
       "$ref": "#/$defs/liftover_parameters"

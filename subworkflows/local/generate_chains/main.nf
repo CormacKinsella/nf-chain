@@ -13,6 +13,10 @@ workflow GENERATE_CHAINS {
     blat_psl
 
     main:
+    // Initialise empty outputs
+    chain = channel.empty()
+    stats = channel.empty()
+
     // Chain generation workflow
     if ( aligner in ['blat'] ) {
         // Generate twobit files
@@ -104,11 +108,14 @@ workflow GENERATE_CHAINS {
         CHAIN_STATS (
             NET_CHAIN.out.chain_stats_in
         )
-
+        chain = NET_CHAIN.out.final_chain
+        stats = CHAIN_STATS.out.chain_stats
+    } else if ( aligner in ['minimap2'] ) {
+        // Placeholder
     }
 
     emit:
-    chain = NET_CHAIN.out.final_chain
-    stats = CHAIN_STATS.out.chain_stats
+    chain = chain
+    stats = stats
 
 }
