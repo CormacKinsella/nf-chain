@@ -10,10 +10,11 @@ process NET_CHAIN {
 
     input:
     tuple val(meta), path(input), path(source_sizes), path(target_sizes)
+    val(aligner)
 
     output:
-    tuple val(meta), path("${meta.lift}.chain.gz"), emit: final_chain
-    tuple val(meta), path("${meta.lift}.chain.gz"), path(source_sizes), path(target_sizes), emit: chain_stats_in
+    tuple val(meta), path("*.chain.gz"), emit: final_chain
+    tuple val(meta), path("*.chain.gz"), path(source_sizes), path(target_sizes), emit: chain_stats_in
     // Note: manually update the package versions, tool does not have --version flag
     tuple val(task.process), val('chainnet'), val('482'), topic: versions
     tuple val(task.process), val('netchainsubset'), val('482'), topic: versions
@@ -39,7 +40,7 @@ process NET_CHAIN {
     done
 
     # Prepare final liftover chain file
-    cat liftover_split/*.chain | gzip -c > ${meta.lift}.chain.gz
+    cat liftover_split/*.chain | gzip -c > ${meta.lift}.${aligner}.chain.gz
     """
 
 }

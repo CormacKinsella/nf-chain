@@ -1,10 +1,8 @@
 Changes in component 'nf-core/ucsc/liftover'
-'modules/nf-core/ucsc/liftover/environment.yml' is unchanged
-'modules/nf-core/ucsc/liftover/meta.yml' is unchanged
 Changes in 'ucsc/liftover/main.nf':
 --- modules/nf-core/ucsc/liftover/main.nf
 +++ modules/nf-core/ucsc/liftover/main.nf
-@@ -1,40 +1,36 @@
+@@ -1,40 +1,37 @@
  process UCSC_LIFTOVER {
 -    tag "$meta.id"
 -    label 'process_low'
@@ -21,6 +19,7 @@ Changes in 'ucsc/liftover/main.nf':
 -    tuple val(meta), path(bed)
 -    path(chain)
 +    tuple val(meta), path(chain), path(liftover)
++    val(aligner_tag)
  
      output:
 -    tuple val(meta), path("*.lifted.bed")  , emit: lifted
@@ -55,15 +54,17 @@ Changes in 'ucsc/liftover/main.nf':
 +        ${args} \\
 +        ${liftover} \\
 +        ${chain} \\
-+        ${meta.lift}.lifted.${name} \\
-+        ${meta.lift}.unlifted.${name}
++        ${meta.lift}.${aligner_tag}.lifted.${name} \\
++        ${meta.lift}.${aligner_tag}.unlifted.${name}
 +
-+    gzip ${meta.lift}.*lifted.${name}
++    gzip ${meta.lift}.${aligner_tag}.*lifted.${name}
      """
  
  }
 
+'modules/nf-core/ucsc/liftover/environment.yml' is unchanged
+'modules/nf-core/ucsc/liftover/meta.yml' is unchanged
 'modules/nf-core/ucsc/liftover/tests/main.nf.test.snap' is unchanged
-'modules/nf-core/ucsc/liftover/tests/main.nf.test' is unchanged
 'modules/nf-core/ucsc/liftover/tests/test.config' is unchanged
+'modules/nf-core/ucsc/liftover/tests/main.nf.test' is unchanged
 ************************************************************
