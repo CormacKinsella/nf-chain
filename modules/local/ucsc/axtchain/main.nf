@@ -5,8 +5,8 @@ process AXTCHAIN {
 
     // Note: manually update the package versions, tool does not have --version flag
     container "${ workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container ?
-        'docker://ghcr.io/cormackinsella/pixi-axtchain-chainbridge:latest' :
-        'ghcr.io/cormackinsella/pixi-axtchain-chainbridge:latest' }"
+        'oras://community.wave.seqera.io/library/ucsc-axtchain:482--3de1a6fe14027cb9' :
+        'community.wave.seqera.io/library/ucsc-axtchain:482--655ecc99e8f95302' }"
 
     input:
     tuple val(meta), path(input), path(source_twobit), path(target_twobit)
@@ -15,7 +15,6 @@ process AXTCHAIN {
     tuple val(meta), path("*.chain"), emit: axtchain
     // Note: manually update the package versions, tool does not have --version flag
     tuple val(task.process), val('axtchain')   , val('482'), topic: versions
-    tuple val(task.process), val('chainbridge'), val('377'), topic: versions
 
     script:
     def args   = task.ext.args ?: ''
@@ -28,12 +27,6 @@ process AXTCHAIN {
         ${args2} \\
         ${args3} \\
         ${input} \\
-        ${source_twobit} \\
-        ${target_twobit} \\
-        stdout | \\
-    chainBridge \\
-        ${args2} \\
-        stdin \\
         ${source_twobit} \\
         ${target_twobit} \\
         ${input.baseName}.chain
