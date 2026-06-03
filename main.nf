@@ -52,7 +52,8 @@ workflow {
             params.aggregate_chunk_size,
             params.exclude_frequent_kmers
         )
-        blat_psl = ALIGN_ASSEMBLIES.out.blat_psl
+        psl = ALIGN_ASSEMBLIES.out.psl
+        paf = ALIGN_ASSEMBLIES.out.paf
     }
 
     // Generate chains
@@ -61,7 +62,8 @@ workflow {
             assemblies,
             samplesheet,
             params.aligner,
-            blat_psl
+            psl,
+            paf
         )
         chain = GENERATE_CHAINS.out.chain
         stats = GENERATE_CHAINS.out.stats
@@ -69,10 +71,12 @@ workflow {
 
     // Perform liftovers
     if ( 'liftover' in workflow_steps) {
+        aligner_tag = 'generate_chains' in workflow_steps ? params.aligner : 'custom_chain'
         // Run liftover
         LIFTOVER (
             chain,
-            liftover
+            liftover,
+            aligner_tag
         )
         lifted   = LIFTOVER.out.lifted
         unlifted = LIFTOVER.out.unlifted
