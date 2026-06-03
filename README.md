@@ -165,7 +165,7 @@ The basic command structure is:
 
 - `minimap2`: inter-species alignments, repetitive genomes
 
-- `LASTZ`: inter-species alignments (not currently implemented)
+- **Not currently implemented** - `LASTZ`: inter-species alignments (if you require this feature, please request it via an issue)
 
 ## Workflow layout
 
