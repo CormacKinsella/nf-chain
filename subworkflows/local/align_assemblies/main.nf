@@ -13,7 +13,8 @@ workflow ALIGN_ASSEMBLIES {
 
     main:
     // Initialise empty channels
-    blat_psl = channel.empty()
+    psl = channel.empty()
+    paf = channel.empty()
 
     // Branch source and target FASTA files into separate channels
     fasta
@@ -34,15 +35,17 @@ workflow ALIGN_ASSEMBLIES {
             aggregate_chunk_size,
             exclude_frequent_kmers
         )
-        blat_psl = BLAT_ALIGNMENT.out.blat_psl
+        psl = BLAT_ALIGNMENT.out.blat_psl
     } else if ( aligner == 'minimap2' ) {
         MINIMAP2_ALIGNMENT (
             assembly.source,
             assembly.target
         )
+        paf = MINIMAP2_ALIGNMENT.out.paf
     }
 
     emit:
-    blat_psl = blat_psl
+    psl = psl
+    paf = paf
 
 }
