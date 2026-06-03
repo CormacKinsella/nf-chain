@@ -18,6 +18,7 @@ test-apptainer    = "nextflow main.nf -profile apptainer,test   -params-file tes
 test-singularity  = "nextflow main.nf -profile singularity,test -params-file tests/params-chain-lift.yml"
 test-docker       = "nextflow main.nf -profile docker,test      -params-file tests/params-chain-lift.yml"
 test-dev          = "nextflow main.nf -profile apptainer,test   -params-file tests/params-dev.yml"
+test-minimap      = "nextflow main.nf -profile apptainer,test   -params-file tests/params-chain-lift.yml --aligner minimap2"
 
 [activation.env]
 NXF_SYNTAX_PARSER = "v1"

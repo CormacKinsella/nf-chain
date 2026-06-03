@@ -45,8 +45,8 @@ workflow {
     // Align assemblies
     if ( 'align_assemblies' in workflow_steps) {
         ALIGN_ASSEMBLIES (
-            assemblies,
             params.aligner,
+            assemblies,
             params.chunk_size,
             params.extra,
             params.aggregate_chunk_size,
