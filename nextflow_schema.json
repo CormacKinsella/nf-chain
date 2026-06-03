@@ -110,7 +110,7 @@
         "aligner": {
           "type": "string",
           "description": "Assembly alignment algorithm",
-          "enum": ["blat", "lastz", "minimap2"]
+          "enum": ["blat", "minimap2"]
         },
         "softmask_source": {
           "type": "boolean",
