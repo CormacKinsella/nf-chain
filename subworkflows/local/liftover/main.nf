@@ -6,6 +6,7 @@ workflow LIFTOVER {
     take:
     chain
     liftover
+    aligner_tag
 
     main:
     // Combine the chain and liftover files by their lift metadata
@@ -32,10 +33,12 @@ workflow LIFTOVER {
 
     // Perform liftovers
     LIFTOVER_BED (
-        liftover_input.bed
+        liftover_input.bed,
+        aligner_tag
     )
     LIFTOVER_GFF_OR_GTF (
-        liftover_input.gff_or_gtf
+        liftover_input.gff_or_gtf,
+        aligner_tag
     )
 
     // Mix outputs
