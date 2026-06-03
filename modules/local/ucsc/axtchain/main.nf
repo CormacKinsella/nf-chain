@@ -30,12 +30,7 @@ process AXTCHAIN {
         ${input} \\
         ${source_twobit} \\
         ${target_twobit} \\
-        stdout | \\
-    chainBridge \\
-        ${args2} \\
-        stdin \\
-        ${source_twobit} \\
-        ${target_twobit} \\
+        stdout > \\
         ${input.baseName}.chain
     """
 
