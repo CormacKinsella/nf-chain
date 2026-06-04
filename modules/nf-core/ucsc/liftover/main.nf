@@ -9,6 +9,7 @@ process UCSC_LIFTOVER {
 
     input:
     tuple val(meta), path(chain), path(liftover)
+    val(aligner_tag)
 
     output:
     tuple val(meta), path("*.lifted.*")  , emit: lifted
@@ -27,10 +28,10 @@ process UCSC_LIFTOVER {
         ${args} \\
         ${liftover} \\
         ${chain} \\
-        ${meta.lift}.lifted.${name} \\
-        ${meta.lift}.unlifted.${name}
+        ${meta.lift}.${aligner_tag}.lifted.${name} \\
+        ${meta.lift}.${aligner_tag}.unlifted.${name}
 
-    gzip ${meta.lift}.*lifted.${name}
+    gzip ${meta.lift}.${aligner_tag}.*lifted.${name}
     """
 
 }
