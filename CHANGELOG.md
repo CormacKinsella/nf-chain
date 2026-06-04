@@ -4,7 +4,11 @@
 
 ### minimap2 alignment
 
-- override cpu config for HPC systems
+- increase cpus to `process_high` to cater to minimap2 align
+
+### Readme
+
+- improved instructions
 
 ## [2.0] - 2026-06-04
 

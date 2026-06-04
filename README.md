@@ -119,29 +119,42 @@ The basic command structure is:
 
 `pixi run nextflow main.nf -profile PROFILE_NAME -params-file params.yml`
 
-- `-profile` accepts any `nf-core` institutional profile for HPC centres
-- The `params.yml` is used to change any setting from the default
-- To see the parameters and their usage, run `pixi run help`
+> [!TIP]
+> - `-profile apptainer,test`: runs using the apptainer and test profiles (the latter sets resource limits to those typical of laptops)
+>
+> - `-profile` accepts any [nf-core institutional profile](https://github.com/nf-core/configs/tree/master/conf) for HPC centre usage
+>
+> - e.g.: `-profile uppmax`: automatically detects which uppmax cluster the user is submitting from, and runs using singularity and appropriate resource limits
+
+- The `params.yml` file is used to change a setting from the default, and looks something like this:
+
+```
+steps          : 'prepare_inputs,align_assemblies,generate_chains,liftover'
+aligner        : 'blat'
+tracing        : true
+input          : './assembly_samplesheet.csv'
+liftover_input : './beds_to_lift.csv'
+```
+
+- To see available parameters and their options: `pixi run help`
 
 ### To run on a cluster, e.g.: pelle
 
-- A SLURM helper script is provided (`bin/slurm_submission.sh`)
+- An editable SLURM helper script is provided (`bin/slurm_submission.sh`), including the `--project` parameter (which should be set for project hours billing)
 
-- Edit the values at the top of the script and submit with `bash bin/slurm_submission.sh`
+- Edit the values at the top of the script, create your `params.yml`, and submit with `bash bin/slurm_submission.sh`
 
-- The underlying command looks something like: `pixi run nextflow main.nf -profile uppmax -params-file params.yml --project my_hpc_allocation`
+### To run only chain generation (local execution)
 
-### To run only chain generation
+`pixi run nextflow main.nf -profile apptainer,test --steps 'prepare_inputs,align_assemblies,generate_chains' --input genomes_samplesheet.csv`
 
-`pixi run nextflow main.nf -profile apptainer --steps 'prepare_inputs,align_assemblies,generate_chains' --input genomes_samplesheet.csv`
+### To run only liftover (local execution)
 
-### To run only liftover
+`pixi run nextflow main.nf -profile apptainer,test --steps 'liftover' --chain_file Y12_to_R64.chain.gz --liftover_input liftover_samplesheet.csv`
 
-`pixi run nextflow main.nf -profile apptainer --steps 'liftover' --chain_file Y12_to_R64.chain.gz --liftover_input liftover_samplesheet.csv`
+### To run chain generation and liftover (local execution)
 
-### To run chain generation and liftover
-
-`pixi run nextflow main.nf -profile apptainer --steps 'prepare_inputs,align_assemblies,generate_chains,liftover' --input genomes_samplesheet.csv --liftover_input liftover_samplesheet.csv`
+`pixi run nextflow main.nf -profile apptainer,test --steps 'prepare_inputs,align_assemblies,generate_chains,liftover' --input genomes_samplesheet.csv --liftover_input liftover_samplesheet.csv`
 
 ## A note on terminology
 

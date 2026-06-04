@@ -224,7 +224,7 @@
       "properties": {
         "chain_file": {
           "type": "string",
-          "description": "Path to a custom chain file for liftovers. Not used if 'generate_chains' is found"
+          "description": "Path to a custom chain file for liftovers (ignored if generating the chains)"
         },
         "liftover_input": {
           "type": "string",
