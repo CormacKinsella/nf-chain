@@ -186,11 +186,6 @@
         "chains_sequential": {
           "type": "boolean",
           "description": "Chaining: if true, mimics UCSC sequential processing of each chrom.chain (not recommended)"
-        },
-        "run_chain_anti_repeat": {
-          "type": "boolean",
-          "description": "Filter repeats/degenerate DNA from the chain",
-          "default": true
         }
       }
     },
@@ -205,6 +200,19 @@
           "default": "asm10",
           "description": "Minimap2 preset (see minimap2 docs)",
           "enum": ["asm5", "asm10", "asm20"]
+        }
+      }
+    },
+    "chaining_general_parameters_all_aligners": {
+      "title": "Chaining general parameters (all aligners)",
+      "type": "object",
+      "description": "",
+      "default": "",
+      "properties": {
+        "run_chain_anti_repeat": {
+          "type": "boolean",
+          "description": "Filter repeats/degenerate DNA from the chain",
+          "default": true
         }
       }
     },
@@ -244,6 +252,9 @@
     },
     {
       "$ref": "#/$defs/minimap2_parameters"
+    },
+    {
+      "$ref": "#/$defs/chaining_general_parameters_all_aligners"
     },
     {
       "$ref": "#/$defs/liftover_parameters"
