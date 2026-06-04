@@ -9,6 +9,7 @@ workflow PSL_TO_CHAIN {
     psl
     twobit_source_modified
     twobit_target_modified
+    run_chain_anti_repeat
     aligner
 
     main:
@@ -27,15 +28,22 @@ workflow PSL_TO_CHAIN {
             [ meta, psl, source_twobit, target_twobit ]
         }
         .set { axtchain_in }
-    // Convert from psl to chain & bridge chains
+    // Convert from psl to chain & liftup from chunked to real coordinates
     AXTCHAIN (
         axtchain_in
     )
     // For each source/target pair, merge chains
-    MERGE_CHAINS (
-        AXTCHAIN.out.axtchain
-            .groupTuple()
-    )
+    if ( run_chain_anti_repeat ) {
+        MERGE_CHAINS (
+            AXTCHAIN.out.antiRep
+                .groupTuple()
+        )
+    } else {
+        MERGE_CHAINS (
+            AXTCHAIN.out.axtchain
+                .groupTuple()
+        )
+    }
     // Combine merged chains with source and target chrom sizes
     MERGE_CHAINS.out.merged_chain
         .map { meta, chain -> [ meta.lift, meta, chain ] }
