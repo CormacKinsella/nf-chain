@@ -35,7 +35,7 @@ workflow ALIGN_ASSEMBLIES {
             aggregate_chunk_size,
             exclude_frequent_kmers
         )
-        psl = BLAT_ALIGNMENT.out.blat_psl
+        psl = BLAT_ALIGNMENT.out.psl
     } else if ( aligner == 'minimap2' ) {
         MINIMAP2_ALIGNMENT (
             assembly.source,

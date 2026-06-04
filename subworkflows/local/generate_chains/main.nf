@@ -8,14 +8,11 @@ workflow GENERATE_CHAINS {
     assemblies
     samplesheet
     aligner
+    run_chain_anti_repeat
     psl
     paf
 
     main:
-    // Initialise empty outputs
-    chain = channel.empty()
-    stats = channel.empty()
-
     // Generate twobit files
     FASTA_TO_TWOBIT (
         assemblies
@@ -57,6 +54,7 @@ workflow GENERATE_CHAINS {
             psl,
             twobit_source_modified,
             twobit_target_modified,
+            run_chain_anti_repeat,
             aligner
         )
         chain = PSL_TO_CHAIN.out.chain
@@ -66,6 +64,7 @@ workflow GENERATE_CHAINS {
             paf,
             twobit_source_modified,
             twobit_target_modified,
+            run_chain_anti_repeat,
             aligner
         )
         chain = PAF_TO_CHAIN.out.chain

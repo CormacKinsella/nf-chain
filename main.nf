@@ -62,6 +62,7 @@ workflow {
             assemblies,
             samplesheet,
             params.aligner,
+            params.run_chain_anti_repeat,
             psl,
             paf
         )

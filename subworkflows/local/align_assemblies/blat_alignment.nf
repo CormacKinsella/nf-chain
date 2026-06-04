@@ -88,9 +88,8 @@ workflow BLAT_ALIGNMENT {
         BLAT (
             blat_input
         )
-        blat_psl = BLAT.out.blat_psl
 
     emit:
-    blat_psl = blat_psl
+    psl = BLAT.out.blat_psl
 
 }
