@@ -5,6 +5,12 @@
     "https://github.com/nf-core/modules.git": {
       "modules": {
         "nf-core": {
+          "minimap2/index": {
+            "branch": "master",
+            "git_sha": "135d883a43b1a2324b4112cd270cf22e20835533",
+            "installed_by": ["modules"],
+            "patch": "modules/nf-core/minimap2/index/minimap2-index.diff"
+          },
           "ncbigenomedownload": {
             "branch": "master",
             "git_sha": "46cee3233c7c56524e3c32a52cec089316e09ee5",

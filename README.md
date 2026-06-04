@@ -9,62 +9,59 @@
 
 ## Brief description
 
-`nf-chain` is an accessible Nextflow workflow for genome to genome liftovers
+`nf-chain` is an accessible Nextflow workflow for genome to genome coordinate liftovers
 
-- If running chain generation, it takes assemblies as NCBI accessions or FASTA files
+### It can:
 
-- It generates `chain` files between _**any number**_ of `source` assemblies and _**any number**_ of `target` assemblies, see tip 1
+- Generate `chain` files between _**any number**_ of `source` assemblies and _**any number**_ of `target` assemblies (see tip 1)
 
-- Optionally also runs any number of coordinate liftovers on compatible inputs (`bed`/`gff`/`gtf`), though see tip 2 below
+- Pull assemblies directly from NCBI via an accession (also accepts FASTA as a local path/remote link)
 
-- For coordinate liftovers, users can choose to skip chain generation and instead provide their own chain file, though see tip 3 below:
+- Run any number and combination of coordinate liftovers using the chain files it generates (see tip 2)
+
+- Skip chain generation and run any number of coordinate liftovers directly, if users already have a chain file (though see tip 3)
+
+- Take advantage of `nf-core` HPC profiles for highly parallel task execution at scale
 
 > [!TIP]
 >
 >**Tip 1**
->- `many_to_many` (many sources to many targets) mode is the default. Users can also run in `one_to_many` or `many_to_one` modes to apply respective validation on their assembly samplesheet
+>- The default chain generation mode is `many_to_many` (many source assemblies to many target assemblies). Users can also run in `one_to_many` or `many_to_one` modes to validate their assembly samplesheet respectively
 >
 >**Tip 2**
->- `gff`/`gtf` liftovers are not recommended, for gene liftovers consider [Liftoff](https://github.com/agshumate/Liftoff)
+>- `nf-chain` is recommended for `bed` liftovers. It works for `gff`/`gtf`, but users should consider more specialised `gff` liftover tools, e.g., [Liftoff](https://github.com/agshumate/Liftoff) or [Lifton](https://github.com/Kuanhao-Chao/LiftOn) - these go beyond purely coordinate-based liftover
 >
 >**Tip 3**
->- If `nf-chain` builds the `chain` files, users can run any number of liftovers for various `source/target` pairings, i.e.: `CIH_to_R64, & Y12_to_R64, & etc...`
->- However, if providing a `chain` file, users are limited to liftovers for that single `source/target` pairing, i.e.: `CIH_to_R64` (though it still accepts any number of `bed` files to lift)
+>- If providing a `chain` file, users are limited to that single `source/target` pairing for lifts (but any number of input files can be lifted)
+>- This is not the case when `nf-chain` builds the chain files: in this case, there is no limit to the number of pairings that can be processed
 
-## Workflow layout
+### It is:
 
+- Easy to install (only needs `pixi` and one container platform, i.e.: `apptainer`, `singularity`, or `docker`)
 
-<p align="center">
-  <img src="assets/full.svg" alt="metro-map">
-</p>
-
-Metro-map of a complete run using the BLAT aligner - *image generated using [nf-metro](https://github.com/pinin4fjords/nf-metro) v0.7.2*
-
+- Reproducible (all tasks are run in pre-built containers pulled on the fly, while the basic dependencies are fixed via a `pixi.lock` file)
 
 ## Quick start
 
-This quick start assumes users have either `Docker`, `Apptainer`, or `Singularity` installed
+This quick start assumes users have either `Apptainer`, `Singularity`, or `Docker` installed
 
 1. [Install Pixi](https://pixi.sh/latest/installation/): `curl -fsSL https://pixi.sh/install.sh | sh`
 2. Clone the workflow repository: `git clone https://github.com/CormacKinsella/nf-chain.git`
 3. Run `cd nf-chain && pixi install`
 
-You can now run the test (generates chain files for two source yeast assemblies versus the R64 reference genome target, and carries out an example liftover):
+You can now run the test, which generates chain files between two source yeast assemblies and the R64 reference genome target, and then carries out some example liftovers:
 
-`pixi run nextflow main.nf -profile apptainer,test -params-file tests/params-chain-lift.yml`
+`pixi run test-apptainer`
 
-- Note: to use `singularity` or `docker`, replace `apptainer` with your choice
+- Note: `test-singularity` and `test-docker` are also available
 
-Get help with parameters:
-
-`pixi run help`
-
-## Input file setup
+## Run your own data
 
 ### Chain generation samplesheet
 
 The chain generation samplesheet (`.csv` format) specifies the assemblies and which roles they should serve:
 
+- Provide this file to `nf-chain` with `--input`
 
 | sample_name | file_role | identifier_type | identifier |
 |-------------|-----------|-----------------|-------------------------------------------------|
@@ -90,6 +87,8 @@ The chain generation samplesheet (`.csv` format) specifies the assemblies and wh
 
 The liftover samplesheet (`.csv` format) specifies the files to lift and which chain to use:
 
+- Provide this file to `nf-chain` with `--liftover_input`
+
 | lift           | format | input                               |
 |----------------|--------|-------------------------------------|
 | Y12_to_R64     | bed    | /path/to/Y12_coords_to_lift.bed     |
@@ -110,10 +109,27 @@ ERROR: The requested liftover(s): 'CIH_HP1_to_hg38' had no match to a valid chai
 
 ### User provided chain file (optional input if running liftover but not generating chains)
 
-- The chain file should be named with the following structure: `source_to_target.chain` or `source_to_target.chain.gz`, where `source_to_target` matches the lift key in the liftover samplesheet
+- Provide this file to `nf-chain` with `--chain_file`
+- The chain file should be named with the following structure: `source_to_target.chain` or `source_to_target.chain.gz`, where `source_to_target` matches the lift key in the liftover samplesheet (`--liftover_input`)
 - If no match is found, `nf-chain` will output troubleshooting information
 
 ## Example run commands
+
+The basic command structure is:
+
+`pixi run nextflow main.nf -profile PROFILE_NAME -params-file params.yml`
+
+- `-profile` accepts any `nf-core` institutional profile for HPC centres
+- The `params.yml` is used to change any setting from the default
+- To see the parameters and their usage, run `pixi run help`
+
+### To run on a cluster, e.g.: pelle
+
+- A SLURM helper script is provided (`bin/slurm_submission.sh`)
+
+- Edit the values at the top of the script and submit with `bash bin/slurm_submission.sh`
+
+- The underlying command looks something like: `pixi run nextflow main.nf -profile uppmax -params-file params.yml --project my_hpc_allocation`
 
 ### To run only chain generation
 
@@ -140,13 +156,21 @@ ERROR: The requested liftover(s): 'CIH_HP1_to_hg38' had no match to a valid chai
 
 - Thus, if users want to run liftovers in both directions between a pair of assemblies, their assembly samplesheet should have four rows, with each assembly entered as both `source` and `target`, and they should run in the default `many_to_many` mode. In this example, `nf-chain` **will not** generate self to self chains - these pairings are filtered out
 
-- Some aligners such as `BLAT/LASTZ` use the term `target` in a different sense, i.e., the `target reference` to be queried during alignment:
-    - For these aligners, `nf-chain` treats the `source` assembly as the `target reference`, and the `target` assembly as the `query`
+- Some aligners such as `BLAT` use the term `target` in a different sense, i.e., the `target reference` to be queried during alignment:
+    - When using `BLAT`, `nf-chain` treats the `source` assembly as the `target reference`, and the `target` assembly as the `query`
 
 ## A note on aligner choice
 
 - `BLAT`: very closely related genomes, i.e., 95% or greater identity
 
-- `LASTZ`: inter-species alignments
-
 - `minimap2`: inter-species alignments, repetitive genomes
+
+- **Not currently implemented** - `LASTZ`: inter-species alignments (if you require this feature, please request it via an issue)
+
+## Workflow layout
+
+<p align="center">
+  <img src="assets/full.svg" alt="metro-map">
+</p>
+
+Metro-map of an `nf-chain` run using the BLAT aligner - *image generated using [nf-metro](https://github.com/pinin4fjords/nf-metro) v0.7.2*

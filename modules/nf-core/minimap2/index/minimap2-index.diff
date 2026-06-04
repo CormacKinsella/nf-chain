@@ -1,0 +1,17 @@
+Changes in component 'nf-core/minimap2/index'
+Changes in 'minimap2/index/main.nf':
+--- modules/nf-core/minimap2/index/main.nf
++++ modules/nf-core/minimap2/index/main.nf
+@@ -1,4 +1,6 @@
+ process MINIMAP2_INDEX {
++
++    tag "${meta.id}"
+     label 'process_low'
+ 
+     // Note: the versions here need to match the versions used in minimap2/align
+
+'modules/nf-core/minimap2/index/environment.yml' is unchanged
+'modules/nf-core/minimap2/index/meta.yml' is unchanged
+'modules/nf-core/minimap2/index/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/minimap2/index/tests/main.nf.test' is unchanged
+************************************************************

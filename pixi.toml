@@ -14,10 +14,11 @@ nf-core           = ">=4.0.2,<5"
 help              = "nextflow main.nf --help"
 test-chain        = "nextflow main.nf -profile apptainer,test   -params-file tests/params-chain.yml"
 test-lift         = "nextflow main.nf -profile apptainer,test   -params-file tests/params-lift.yml"
-test-full         = "nextflow main.nf -profile apptainer,test   -params-file tests/params-chain-lift.yml"
+test-apptainer    = "nextflow main.nf -profile apptainer,test   -params-file tests/params-chain-lift.yml"
 test-singularity  = "nextflow main.nf -profile singularity,test -params-file tests/params-chain-lift.yml"
 test-docker       = "nextflow main.nf -profile docker,test      -params-file tests/params-chain-lift.yml"
 test-dev          = "nextflow main.nf -profile apptainer,test   -params-file tests/params-dev.yml"
+test-minimap2     = "nextflow main.nf -profile apptainer,test   -params-file tests/params-chain-lift.yml --aligner minimap2"
 
 [activation.env]
 NXF_SYNTAX_PARSER = "v1"
