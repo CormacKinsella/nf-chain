@@ -1,5 +1,11 @@
 # Changelog
 
+## [?] - Unreleased
+
+### minimap2 alignment
+
+- override cpu config for HPC systems
+
 ## [2.0] - 2026-06-04
 
 ### minimap2
