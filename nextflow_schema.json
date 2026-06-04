@@ -186,6 +186,11 @@
         "chains_sequential": {
           "type": "boolean",
           "description": "Chaining: if true, mimics UCSC sequential processing of each chrom.chain (not recommended)"
+        },
+        "run_chain_anti_repeat": {
+          "type": "boolean",
+          "description": "Filter repeats/degenerate DNA from the chain",
+          "default": true
         }
       }
     },
