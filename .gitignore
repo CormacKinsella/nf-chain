@@ -4,6 +4,7 @@ work/
 
 # Pipeline
 results/
+results_*/
 
 # nf-test
 .nf-test.log
