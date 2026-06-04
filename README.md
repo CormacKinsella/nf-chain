@@ -55,6 +55,8 @@ You can now run the test, which generates chain files between two source yeast a
 
 - Note: `test-singularity` and `test-docker` are also available
 
+- Get parameter help: `pixi run help`
+
 ## Run your own data
 
 ### Chain generation samplesheet
