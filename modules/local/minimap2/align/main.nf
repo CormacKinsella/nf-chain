@@ -1,7 +1,6 @@
 process MINIMAP2_ALIGN {
 
     tag "${meta.lift}"
-    // Note cpus controlled via conf/tool_resources.config
     label 'process_high'
 
     // Note: the versions here need to match the versions used in nf-core/minimap2/index
